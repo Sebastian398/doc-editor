@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Document {
+  id        String   @id @default(cuid())
+  name      String
+  fileUrl   String
+  createdAt DateTime @default(now())
+  fields    Field[]
+  rooms  Room[]
+}
+
+model Field {
+  id         String @id @default(cuid())
+  type       String
+  x          Float
+  y          Float
+  width      Float
+  height     Float
+  documentId String
+  Document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  responses Response[]
+}
+
+model Room {
+  id         String   @id @default(cuid())
+  documentId String
+  link       String   @unique
+  createdAt  DateTime @default(now())
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  responses  Response[]
+}
+model Response {
+  id       String @id @default(cuid())
+  value    String
+  fieldId  String
+  field   Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  roomId   String
+  room   Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+}
