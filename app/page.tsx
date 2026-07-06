@@ -287,33 +287,45 @@ export default function Home() {
                       {/* DESCARGAR */}
                       <button
                         onClick={async () => {
-                          try {
-                            const resDoc = await fetch(`/api/documents/${doc.id}`)
-                            const data = await resDoc.json()
+  
+  try {
+    console.log('INICIANDO DESCARGA')
 
-                            const res = await fetch('/api/generate-pdf', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({
-                                fileUrl: `${window.location.origin}${doc.fileUrl}`,
-                                fields: data.fields,
-                              }),
-                            })
+    const res = await fetch(
+      `/api/export-room/${room.id}`
+    )
 
-                            const blob = await res.blob()
-                            const url = URL.createObjectURL(blob)
+    console.log('STATUS:', res.status)
 
-                            const a = document.createElement('a')
-                            a.href = url
-                            a.download = `${doc.name}-firmado.pdf`
-                            a.click()
-                          } catch {
-                            setMessage({
-                              type: 'error',
-                              text: 'Error descargando PDF ❌',
-                            })
-                          }
-                        }}
+    if (!res.ok) {
+      const error = await res.text()
+      console.error(error)
+      return
+    }
+
+    const blob = await res.blob()
+
+    console.log('BLOB OK')
+
+    const url = URL.createObjectURL(blob)
+
+    const a = document.createElement('a')
+
+    a.href = url
+    a.download = `${doc.name}-firmado.pdf`
+
+    a.click()
+
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error(error)
+
+    setMessage({
+      type: 'error',
+      text: 'Error descargando PDF ❌',
+    })
+  }
+}}
                         className="flex items-center justify-center h-10 rounded bg-green-100 text-green-600 hover:bg-green-200 transition"
                         title="Descargar PDF"
                       >
