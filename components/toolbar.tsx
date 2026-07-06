@@ -4,8 +4,10 @@ import { useState } from 'react'
 import { Settings, X, Eye, Pencil } from 'lucide-react'
 
 type Props = {
-  tool: 'text' | 'signature'
-  setTool: (t: 'text' | 'signature') => void
+  tool: 'text' | 'signature' | 'number'
+  setTool: (
+    t: 'text' | 'signature' | 'number'
+  ) => void
   mode: 'edit' | 'preview'
   setMode: (m: 'edit' | 'preview') => void
   onSave: () => void
@@ -91,6 +93,23 @@ export default function Toolbar({
             `}
           >
             Firma
+          </button>
+          <button
+            onClick={() => setTool('number')}
+            disabled={mode === 'preview'}
+            className={`
+              py-2 px-3 rounded-lg text-sm text-left transition
+              ${
+                tool === 'number' && mode === 'edit'
+                  ? 'bg-amber-50 text-amber-600 border border-amber-200'
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+              }
+              ${mode === 'preview'
+                ? 'opacity-50 cursor-not-allowed'
+                : ''}
+            `}
+          >
+            Número
           </button>
         </div>
 

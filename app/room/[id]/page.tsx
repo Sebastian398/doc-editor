@@ -12,22 +12,16 @@ const PDFViewer = dynamic(() => import('@/components/PDFViewer'), {
 
 type Field = {
   id: string
-
   x: number
   y: number
-
   width: number
   height: number
-
   xRatio?: number
   yRatio?: number
-
   widthRatio?: number
   heightRatio?: number
-
   page?: number
-
-  type?: 'text' | 'signature'
+  type?: 'text' | 'signature' | 'number'
 }
 
 type RoomData = {
@@ -234,6 +228,7 @@ export default function RoomPage({
 
           {data.document.fields.map((f) => {
             const isSignature = f.type === 'signature'
+            const isNumber = f.type === 'number'
             console.log({
   id: f.id,
   top:
@@ -291,12 +286,40 @@ export default function RoomPage({
                   )
                 ) : (
                   <input
-                    placeholder="Escribe aquí"
-                    value={values[f.id] || ''}
-                    onChange={(e) =>
-                      handleChange(f.id, e.target.value)
+                    type={isNumber ? 'number' : 'text'}
+                    placeholder={
+                      isNumber
+                        ? 'Ingrese número'
+                        : 'Escribe aquí'
                     }
-                    className="w-full h-full border-2 border-blue-500 bg-white text-black rounded px-1 text-sm"
+                    value={values[f.id] || ''}
+                    onChange={(e) => {
+                      if (isNumber) {
+                        handleChange(
+                          f.id,
+                          e.target.value.replace(/[^\d]/g, '')
+                        )
+                      } else {
+                        handleChange(
+                          f.id,
+                          e.target.value
+                        )
+                      }
+                    }}
+                    className={`
+                      w-full h-full
+                      border-2
+                      bg-white
+                      text-black
+                      rounded
+                      px-1
+                      text-sm
+                      ${
+                        isNumber
+                          ? 'border-amber-500'
+                          : 'border-blue-500'
+                      }
+                    `}
                   />
                 )}
               </div>

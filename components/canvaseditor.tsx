@@ -9,16 +9,21 @@ type FieldFromDB = {
   y: number
   width: number
   height: number
-  type?: 'text' | 'signature'
+  xRatio?: number
+  yRatio?: number
+  widthRatio?: number
+  heightRatio?: number
+  page?: number
+  type?: 'text' | 'signature' | 'number'
 }
 
 type FabricRectWithType = fabric.Rect & {
-  fieldType?: 'text' | 'signature'
+  fieldType?: 'text' | 'signature' | 'number'
 }
 
 type Props = {
   documentId: string
-  tool: 'text' | 'signature'
+  tool: 'text' | 'signature' | 'number'
   mode: 'edit' | 'preview'
   onReady: (saveFn: () => void) => void
 }
@@ -74,17 +79,19 @@ export default function CanvasEditor({
     y: number,
     w: number,
     h: number,
-    type: 'text' | 'signature'
+    type: 'text' | 'signature' | 'number'
   ) {
     const rect = new fabric.Rect({
       left: x,
       top: y,
+      originX: 'left',
+      originY: 'top',
       width: w,
       height: h,
       scaleX: 1,
       scaleY: 1,
       fill: 'transparent',
-      stroke: type === 'signature' ? '#e11d48' : '#2563eb',
+      stroke: type === 'signature' ? '#e11d48' : type === 'number' ? '#f59e0b' : '#2563eb',
       strokeWidth: 2,
       cornerSize: 8,
       transparentCorners: false,
@@ -119,7 +126,7 @@ export default function CanvasEditor({
   }
 
   // GUARDAR
-  async function saveFields() {
+  async function saveFields(showAlert = false) {
     const canvas = fabricRef.current
     if (!canvas) return
 
@@ -128,34 +135,19 @@ export default function CanvasEditor({
     const fields = canvas.getObjects().map((obj) => {
       const o = obj as FabricRectWithType
 
-      const realWidth = (o.width ?? 0) * (o.scaleX ?? 1)
-      const realHeight = (o.height ?? 0) * (o.scaleY ?? 1)
-console.log({
-  left: o.left,
-  top: o.top,
-  width: realWidth,
-  height: realHeight,
-});const bounds = o.getBoundingRect()
-      return {
-        
-x: bounds.left,
-  y: bounds.top,
-
-  width: bounds.width,
-  height: bounds.height,
-
-        
-xRatio: bounds.left / canvasWidth,
-  yRatio: bounds.top / canvasHeight,
-
-  widthRatio: bounds.width / canvasWidth,
-  heightRatio: bounds.height / canvasHeight,
-
-  page: 1,
-
-  type: o.fieldType || 'text',
-}
-
+    const bounds = o.getBoundingRect()
+    return {
+      x: bounds.left,
+      y: bounds.top,
+      width: bounds.width,
+      height: bounds.height,
+      xRatio: bounds.left / canvasWidth,
+      yRatio: bounds.top / canvasHeight,
+      widthRatio: bounds.width / canvasWidth,
+      heightRatio: bounds.height / canvasHeight,
+      page: 1,
+      type: o.fieldType || 'text',
+    }
     })
 
     await fetch('/api/fields', {
@@ -164,7 +156,9 @@ xRatio: bounds.left / canvasWidth,
       body: JSON.stringify({ documentId, fields }),
     })
 
-    alert('Campos guardados ✅')
+    if (showAlert) {
+      alert('Campos guardados ✅')
+    }
   }
 
   useEffect(() => {
@@ -177,26 +171,15 @@ xRatio: bounds.left / canvasWidth,
       width: container.clientWidth,
       height: container.clientHeight,
     })
-    
-    setTimeout(() => {
-      console.log('CONTAINER WIDTH', container.offsetWidth)
-      console.log('CONTAINER HEIGHT', container.offsetHeight)
-
-      console.log(
-        'FABRIC WIDTH',
-        canvas.getWidth()
-      )
-
-      console.log(
-        'FABRIC HEIGHT',
-        canvas.getHeight()
-      )
-    }, 1500)
 
     canvas.allowTouchScrolling = true
     fabricRef.current = canvas
 
     loadFields(canvas)
+
+    canvas.on('object:modified', () => {
+      saveFields()
+    })
 
     // CLICK
     canvas.on('mouse:down', (opt: TPointerEventInfo<TPointerEvent>) => {
@@ -213,16 +196,27 @@ xRatio: bounds.left / canvasWidth,
       const x = (event.clientX - rectBounds.left) * scaleX
       const y = (event.clientY - rectBounds.top) * scaleY
 
+      const width =
+        toolRef.current === 'signature'
+          ? 200
+          : 150
+
+      const height =
+        toolRef.current === 'signature'
+          ? 70
+          : 30
+
       const newRect = createRect(
         x,
         y,
-        toolRef.current === 'signature' ? 200 : 150,
-        toolRef.current === 'signature' ? 70 : 30,
+        width,
+        height,
         toolRef.current
       )
 
       canvas.add(newRect)
       canvas.setActiveObject(newRect)
+      saveFields()
     })
 
     // DELETE
@@ -233,6 +227,7 @@ xRatio: bounds.left / canvasWidth,
           canvas.remove(active)
           canvas.discardActiveObject()
           canvas.requestRenderAll()
+          saveFields()
         }
       }
     }
@@ -250,19 +245,6 @@ xRatio: bounds.left / canvasWidth,
     })
 
     observer.observe(container)
-
-    setTimeout(() => {
-      console.log('PDF CONTAINER', container)
-
-      const pageElement =
-        document.querySelector('.react-pdf__Page')
-
-      console.log(
-        'PDF PAGE',
-        pageElement?.clientWidth,
-        pageElement?.clientHeight
-      )
-    }, 1000)
 
     requestAnimationFrame(() => {
       onReady(saveFields)
