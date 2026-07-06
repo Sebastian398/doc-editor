@@ -25,6 +25,13 @@ type Props = {
   documentId: string
   tool: 'text' | 'signature' | 'number'
   mode: 'edit' | 'preview'
+  
+  pagesInfo: {
+    pageNumber: number
+    width: number
+    height: number
+  }[]
+
   onReady: (saveFn: () => void) => void
 }
 
@@ -32,6 +39,7 @@ export default function CanvasEditor({
   documentId,
   tool,
   mode,
+  pagesInfo,
   onReady,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -136,18 +144,60 @@ export default function CanvasEditor({
       const o = obj as FabricRectWithType
 
     const bounds = o.getBoundingRect()
-    return {
-      x: bounds.left,
-      y: bounds.top,
-      width: bounds.width,
-      height: bounds.height,
-      xRatio: bounds.left / canvasWidth,
-      yRatio: bounds.top / canvasHeight,
-      widthRatio: bounds.width / canvasWidth,
-      heightRatio: bounds.height / canvasHeight,
-      page: 1,
-      type: o.fieldType || 'text',
-    }
+    let pageNumber = 1
+let localY = bounds.top
+let pageHeight = canvasHeight
+
+let accumulatedTop = 0
+
+for (const page of pagesInfo) {
+
+  const pageTop = accumulatedTop
+
+  const pageBottom =
+    accumulatedTop + page.height
+
+  if (
+    bounds.top >= pageTop &&
+    bounds.top < pageBottom
+  ) {
+    pageNumber = page.pageNumber
+
+    localY =
+      bounds.top - pageTop
+
+    pageHeight =
+      page.height
+
+    break
+  }
+
+  accumulatedTop += page.height
+}
+
+return {
+  x: bounds.left,
+  y: bounds.top,
+  width: bounds.width,
+  height: bounds.height,
+
+  xRatio:
+    bounds.left / canvasWidth,
+
+  yRatio:
+    localY / pageHeight,
+
+  widthRatio:
+    bounds.width / canvasWidth,
+
+  heightRatio:
+    bounds.height / pageHeight,
+
+  page: pageNumber,
+
+  type:
+    o.fieldType || 'text',
+}
     })
 
     await fetch('/api/fields', {

@@ -28,7 +28,13 @@ export default function EditorPage({
   const [tool, setTool] = useState<'text' | 'number' | 'signature'>('text')
   const [mode, setMode] = useState<'edit' | 'preview'>('edit')
   const [saveFn, setSaveFn] = useState<() => void>(() => () => {})
-
+  const [pagesInfo, setPagesInfo] = useState<
+    {
+      pageNumber: number
+      width: number
+      height: number
+    }[]
+  >([])
   useEffect(() => {
     async function loadDoc() {
       const { id } = await params
@@ -56,7 +62,7 @@ export default function EditorPage({
       `${window.location.origin}/room/${data.link}`
     )
 
-    alert('Link copiado ✅')
+    alert('Enlace copiado')
   }
 
   if (!doc) {
@@ -106,12 +112,13 @@ export default function EditorPage({
           id="pdf-container"
           className="relative bg-white shadow-lg rounded-xl inline-block"
         >
-          <PDFViewer file={doc.fileUrl} />
+          <PDFViewer file={doc.fileUrl} onPagesRendered={setPagesInfo}/>
 
           <CanvasEditor
             documentId={doc.id}
             tool={tool}
             mode={mode}
+            pagesInfo={pagesInfo}
             onReady={(fn) => setSaveFn(() => fn)}
           />
         </div>

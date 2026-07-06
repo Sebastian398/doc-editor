@@ -1,7 +1,5 @@
 export const runtime = 'nodejs'
 
-console.log('EXPORT ROUTE CARGADO')
-
 import { prisma } from '@/lib/db'
 import {
   PDFDocument,
@@ -36,8 +34,6 @@ export async function GET(
       },
     })
 
-    console.log('3 - PRISMA OK')
-
     if (!room) {
       console.log('ROOM NO EXISTE')
 
@@ -49,7 +45,7 @@ export async function GET(
       )
     }
 
-    console.log('4 - ROOM ENCONTRADA')
+    console.log('3 - ROOM ENCONTRADA')
     console.log('ROOM:', room.id)
     console.log('DOC:', room.document.name)
     console.log('PDF URL DB:', room.document.fileUrl)
@@ -58,21 +54,16 @@ export async function GET(
       process.env.NEXT_PUBLIC_APP_URL ||
       'http://localhost:3000'
 
-    console.log('5 - BASE URL:', baseUrl)
+    console.log('4 - BASE URL:', baseUrl)
 
     const pdfUrl =
       `${baseUrl}${room.document.fileUrl}`
 
-    console.log('6 - PDF URL FINAL:')
+    console.log('5 - PDF URL FINAL:')
     console.log(pdfUrl)
 
     const pdfResponse =
       await fetch(pdfUrl)
-
-    console.log(
-      '7 - PDF RESPONSE:',
-      pdfResponse.status
-    )
 
     if (!pdfResponse.ok) {
       return new Response(
@@ -86,21 +77,19 @@ export async function GET(
     const pdfBytes =
       await pdfResponse.arrayBuffer()
 
-    console.log(
-      '8 - PDF BYTES:',
+    console.log('6 - PDF BYTES:',
       pdfBytes.byteLength
     )
 
     const pdfDoc =
       await PDFDocument.load(pdfBytes)
 
-    console.log('9 - PDF CARGADO')
+    console.log('7 - PDF CARGADO')
 
     const pages =
       pdfDoc.getPages()
 
-    console.log(
-      '10 - PAGINAS:',
+    console.log('8 - PAGINAS:',
       pages.length
     )
 
@@ -109,11 +98,7 @@ export async function GET(
         StandardFonts.Helvetica
       )
 
-    console.log('11 - FUENTE OK')
-
-    console.log('==============================')
-    console.log('12 - RECORRIENDO CAMPOS')
-    console.log('==============================')
+    console.log('9 - FUENTE OK')
 
     for (const field of room.document.fields) {
       const response =
@@ -123,13 +108,6 @@ export async function GET(
 
       const value =
         response?.value || ''
-
-      console.log({
-        fieldId: field.id,
-        type: field.type,
-        valuePreview:
-          value?.substring(0, 50),
-      })
 
       const page =
         pages[(field.page ?? 1) - 1]
@@ -145,24 +123,42 @@ export async function GET(
       const { height } =
         page.getSize()
 
-      const x = field.x
+      const pageWidth = page.getWidth()
+      const pageHeight = page.getHeight()
 
-      const y =
-        height -
+    const x =
+    field.xRatio != null
+        ? field.xRatio * pageWidth
+        : field.x
+
+    const width =
+    field.widthRatio != null
+        ? field.widthRatio * pageWidth
+        : field.width
+
+    const heightField =
+    field.heightRatio != null
+        ? field.heightRatio * pageHeight
+        : field.height
+
+    const y =
+    field.yRatio != null
+        ? pageHeight -
+        (field.yRatio * pageHeight) -
+        heightField
+        : pageHeight -
         field.y -
         field.height
 
-      // =====================
       // TEXTO
-      // =====================
 
       if (
         field.type === 'text' ||
         field.type === 'number'
       ) {
         page.drawText(value, {
-          x: x + 2,
-          y: y + 2,
+          x: x + 3,
+          y: y + heightField / 2 - 5,
           size: 10,
           font,
           color: rgb(0, 0, 0),
@@ -176,44 +172,11 @@ export async function GET(
         continue
       }
 
-      // =====================
       // FIRMA
-      // =====================
 
       if (
         field.type === 'signature'
       ) {
-        console.log(
-          'FIRMA ENCONTRADA'
-        )
-
-        console.log(
-          'LONGITUD:',
-          value?.length
-        )
-
-        console.log(
-          'PREVIEW:',
-          value?.substring(0, 100)
-        )
-
-        if (!value) {
-          console.log(
-            'FIRMA VACIA'
-          )
-          continue
-        }
-
-        if (
-          !value.startsWith(
-            'data:image'
-          )
-        ) {
-          console.log(
-            'NO ES BASE64'
-          )
-          continue
-        }
 
         try {
           const mimeType =
@@ -244,10 +207,6 @@ export async function GET(
                   'base64'
                 )
               )
-
-            console.log(
-              'PNG EMBEBIDO'
-            )
           } else if (
             mimeType.includes(
               'jpg'
@@ -263,23 +222,13 @@ export async function GET(
                   'base64'
                 )
               )
-
-            console.log(
-              'JPG EMBEBIDO'
-            )
-          } else {
-            console.log(
-              'FORMATO NO SOPORTADO:',
-              mimeType
-            )
           }
-
           if (image) {
             page.drawImage(image, {
               x,
               y,
-              width: field.width,
-              height: field.height,
+              width,
+              height: heightField,
             })
 
             console.log(
@@ -304,18 +253,8 @@ export async function GET(
         }
       }
     }
-
-    console.log(
-      '13 - CREANDO PDF FINAL'
-    )
-
     const finalPdf =
       await pdfDoc.save()
-
-    console.log(
-      '14 - PDF FINAL OK:',
-      finalPdf.length
-    )
 
     return new Response(
       new Uint8Array(finalPdf),

@@ -34,9 +34,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
-
-    console.log('Deleting document:', id)
-
+    
     // obtener rooms relacionadas
     const rooms = await prisma.room.findMany({
       where: { documentId: id },

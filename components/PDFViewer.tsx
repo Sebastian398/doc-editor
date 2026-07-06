@@ -1,7 +1,7 @@
 'use client'
 
 import { Document, Page, pdfjs } from 'react-pdf'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 // Worker
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -30,19 +30,40 @@ export default function PDFViewer({
   onPagesRendered,
 }: Props) {
   const [numPages, setNumPages] = useState(0)
+
   const [pagesInfo, setPagesInfo] = useState<
-  { pageNumber: number; width: number; height: number }[]
->([])
+    {
+      pageNumber: number
+      width: number
+      height: number
+    }[]
+  >([])
+
   function onDocumentLoadSuccess({
     numPages,
   }: {
     numPages: number
   }) {
     setNumPages(numPages)
+    setPagesInfo([])
   }
 
+  useEffect(() => {
+    if (!onPagesRendered) return
+
+    const sortedPages = [...pagesInfo].sort(
+      (a, b) => a.pageNumber - b.pageNumber
+    )
+
+    onPagesRendered(sortedPages)
+
+  }, [pagesInfo, onPagesRendered])
+
   return (
-    <Document file={file} onLoadSuccess={onDocumentLoadSuccess}>
+    <Document
+      file={file}
+      onLoadSuccess={onDocumentLoadSuccess}
+    >
       {preview ? (
         <Page
           pageNumber={1}
@@ -60,37 +81,48 @@ export default function PDFViewer({
           }}
         />
       ) : (
-        Array.from({ length: numPages }, (_, index) => (
-        <Page
-          key={`page_${index + 1}`}
-          pageNumber={index + 1}
-          width={800}
-          renderAnnotationLayer={false}
-          renderTextLayer={false}
-          onRenderSuccess={(page) => {
-            setPagesInfo(prev => {
-              const exists = prev.find(
-                p => p.pageNumber === index + 1
-              )
+        Array.from(
+          { length: numPages },
+          (_, index) => (
+            <Page
+              key={`page_${index + 1}`}
+              pageNumber={index + 1}
+              width={800}
+              renderAnnotationLayer={false}
+              renderTextLayer={false}
+              onRenderSuccess={(page) => {
 
-              if (exists) return prev
+                const pageData = {
+                  pageNumber:
+                    index + 1,
+                  width:
+                    page.width,
+                  height:
+                    page.height,
+                }
 
-              const updated = [
-                ...prev,
-                {
-                  pageNumber: index + 1,
-                  width: page.width,
-                  height: page.height,
-                },
-              ]
+                setPagesInfo(prev => {
 
-              onPagesRendered?.(updated)
+                  const exists =
+                    prev.find(
+                      p =>
+                        p.pageNumber ===
+                        index + 1
+                    )
 
-              return updated
-            })
-          }}
-        />
-        ))
+                  if (exists) {
+                    return prev
+                  }
+
+                  return [
+                    ...prev,
+                    pageData,
+                  ]
+                })
+              }}
+            />
+          )
+        )
       )}
     </Document>
   )

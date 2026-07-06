@@ -44,11 +44,12 @@ export default function EditorPage({ params }: { params: { id: string } }) {
   return (
     
     <div className="relative w-fit">
-      <PDFViewer file={doc.fileUrl} />
+      <PDFViewer file={doc.fileUrl}/>
       <CanvasEditor
         documentId={doc.id}
         tool={tool}
         mode={mode}
+        pagesInfo={[]}
         onReady={(fn) => setSaveFn(() => fn)}
       />
     </div>
