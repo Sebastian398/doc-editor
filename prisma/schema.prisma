@@ -23,6 +23,11 @@ model Field {
   y          Float
   width      Float
   height     Float
+  xRatio     Float?
+  yRatio     Float?
+  widthRatio Float?
+  heightRatio Float?
+  page Int @default(1)
   documentId String
   Document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
   responses Response[]

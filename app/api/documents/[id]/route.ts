@@ -27,7 +27,7 @@ export async function GET(
     })
   }
 }
-// ✅ DELETE DOCUMENTO
+// DELETE DOCUMENTO
 export async function DELETE(
   req: Request,
   { params }: { params: { id: string } }
@@ -37,7 +37,7 @@ export async function DELETE(
 
     console.log('Deleting document:', id)
 
-    // ✅ 1. obtener rooms relacionadas
+    // obtener rooms relacionadas
     const rooms = await prisma.room.findMany({
       where: { documentId: id },
       select: { id: true },
@@ -45,7 +45,7 @@ export async function DELETE(
 
     const roomIds = rooms.map((r) => r.id)
 
-    // ✅ 2. eliminar responses si existen
+    // eliminar responses si existen
     if (roomIds.length > 0) {
       await prisma.response.deleteMany({
         where: {
@@ -54,17 +54,17 @@ export async function DELETE(
       })
     }
 
-    // ✅ 3. eliminar fields
+    // eliminar fields
     await prisma.field.deleteMany({
       where: { documentId: id },
     })
 
-    // ✅ 4. eliminar rooms
+    // eliminar rooms
     await prisma.room.deleteMany({
       where: { documentId: id },
     })
 
-    // ✅ 5. eliminar documento
+    // eliminar documento
     await prisma.document.delete({
       where: { id },
     })

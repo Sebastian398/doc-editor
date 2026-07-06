@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import SignatureModal from '@/components/SignatureModal'
 import { ArrowLeft } from 'lucide-react'
@@ -12,10 +12,21 @@ const PDFViewer = dynamic(() => import('@/components/PDFViewer'), {
 
 type Field = {
   id: string
+
   x: number
   y: number
+
   width: number
   height: number
+
+  xRatio?: number
+  yRatio?: number
+
+  widthRatio?: number
+  heightRatio?: number
+
+  page?: number
+
   type?: 'text' | 'signature'
 }
 
@@ -39,7 +50,11 @@ export default function RoomPage({
 
   const [activeField, setActiveField] = useState<string | null>(null)
   const [showModal, setShowModal] = useState(false)
-
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [containerSize, setContainerSize] = useState({
+    width: 1,
+    height: 1,
+  })
   useEffect(() => {
     async function load() {
       try {
@@ -52,6 +67,7 @@ export default function RoomPage({
         setData(json)
 
         const initialValues: Record<string, string> = {}
+        
 
         json.responses.forEach(
           (r: { fieldId: string; value: string }) => {
@@ -66,9 +82,48 @@ export default function RoomPage({
         setLoading(false)
       }
     }
-
+    setTimeout(() => {
+      console.log(
+        'ROOM CONTAINER',
+        containerRef.current?.offsetWidth,
+        containerRef.current?.offsetHeight
+      )
+    }, 1500)
     load()
   }, [params])
+
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    const updateSize = () => {
+      setContainerSize({
+        width: containerRef.current?.clientWidth || 1,
+        height: containerRef.current?.clientHeight || 1,
+      })
+    }
+    console.log(
+      'ROOM SIZE',
+      containerRef.current?.clientWidth,
+      containerRef.current?.clientHeight
+    )
+
+    updateSize()
+
+    const observer = new ResizeObserver(updateSize)
+
+    observer.observe(containerRef.current)
+    setTimeout(() => {
+      const pageElement =
+        document.querySelector('.react-pdf__Page')
+
+      console.log(
+        'ROOM PDF PAGE',
+        pageElement?.clientWidth,
+        pageElement?.clientHeight
+      )
+    }, 1000)
+    return () => observer.disconnect()
+  }, [data])
 
   function handleChange(fieldId: string, value: string) {
     setValues((prev) => ({
@@ -136,7 +191,7 @@ export default function RoomPage({
       </div>
     )
   }
-
+  
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
 
@@ -162,22 +217,61 @@ export default function RoomPage({
 
       {/* CONTENIDO */}
       <div className="flex flex-1 justify-center p-6">
-        <div className="relative bg-white shadow-lg rounded-lg w-fit">
+        <div ref={containerRef} className="relative bg-white shadow-lg rounded-lg w-fit">
 
-          <PDFViewer file={data.document.fileUrl} />
+          <PDFViewer
+            file={data.document.fileUrl}
+            onLoad={() => {
+              setTimeout(() => {
+                console.log(
+                  'AFTER PDF LOAD',
+                  containerRef.current?.clientWidth,
+                  containerRef.current?.clientHeight
+                )
+              }, 500)
+            }}
+          />
 
           {data.document.fields.map((f) => {
             const isSignature = f.type === 'signature'
+            console.log({
+  id: f.id,
+  top:
+    f.yRatio != null
+      ? f.yRatio * containerSize.height
+      : f.y,
 
+  left:
+    f.xRatio != null
+      ? f.xRatio * containerSize.width
+      : f.x,
+})
             return (
               <div
                 key={f.id}
                 style={{
                   position: 'absolute',
-                  top: f.y,
-                  left: f.x,
-                  width: f.width,
-                  height: f.height,
+
+                  top:
+                    f.yRatio != null
+                      ? f.yRatio * containerSize.height
+                      : f.y,
+
+                  left:
+                    f.xRatio != null
+                      ? f.xRatio * containerSize.width
+                      : f.x,
+
+                  width:
+                    f.widthRatio != null
+                      ? f.widthRatio * containerSize.width
+                      : f.width,
+
+                  height:
+                    f.heightRatio != null
+                      ? f.heightRatio * containerSize.height
+                      : f.height,
+
                   zIndex: 10,
                 }}
               >

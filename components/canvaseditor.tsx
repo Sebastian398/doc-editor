@@ -45,7 +45,7 @@ export default function CanvasEditor({
     updateVisibility()
   }, [mode])
 
-  // ✅ VISIBILIDAD
+  // VISIBILIDAD
   function updateVisibility() {
     const canvas = fabricRef.current
     if (!canvas) return
@@ -68,7 +68,7 @@ export default function CanvasEditor({
     canvas.renderAll()
   }
 
-  // ✅ CREAR CAMPO
+  // CREAR CAMPO
   function createRect(
     x: number,
     y: number,
@@ -97,7 +97,7 @@ export default function CanvasEditor({
     return rect
   }
 
-  // ✅ CARGAR CAMPOS
+  // CARGAR CAMPOS
   async function loadFields(canvas: fabric.Canvas) {
     const res = await fetch(`/api/documents/${documentId}`)
     if (!res.ok) return
@@ -118,24 +118,44 @@ export default function CanvasEditor({
     updateVisibility()
   }
 
-  // ✅ GUARDAR
+  // GUARDAR
   async function saveFields() {
     const canvas = fabricRef.current
     if (!canvas) return
 
+    const canvasWidth = canvas.getWidth()
+    const canvasHeight = canvas.getHeight()
     const fields = canvas.getObjects().map((obj) => {
       const o = obj as FabricRectWithType
 
       const realWidth = (o.width ?? 0) * (o.scaleX ?? 1)
       const realHeight = (o.height ?? 0) * (o.scaleY ?? 1)
-
+console.log({
+  left: o.left,
+  top: o.top,
+  width: realWidth,
+  height: realHeight,
+});const bounds = o.getBoundingRect()
       return {
-        x: o.left ?? 0,
-        y: o.top ?? 0,
-        width: realWidth,
-        height: realHeight,
-        type: o.fieldType || 'text',
-      }
+        
+x: bounds.left,
+  y: bounds.top,
+
+  width: bounds.width,
+  height: bounds.height,
+
+        
+xRatio: bounds.left / canvasWidth,
+  yRatio: bounds.top / canvasHeight,
+
+  widthRatio: bounds.width / canvasWidth,
+  heightRatio: bounds.height / canvasHeight,
+
+  page: 1,
+
+  type: o.fieldType || 'text',
+}
+
     })
 
     await fetch('/api/fields', {
@@ -157,13 +177,28 @@ export default function CanvasEditor({
       width: container.clientWidth,
       height: container.clientHeight,
     })
+    
+    setTimeout(() => {
+      console.log('CONTAINER WIDTH', container.offsetWidth)
+      console.log('CONTAINER HEIGHT', container.offsetHeight)
+
+      console.log(
+        'FABRIC WIDTH',
+        canvas.getWidth()
+      )
+
+      console.log(
+        'FABRIC HEIGHT',
+        canvas.getHeight()
+      )
+    }, 1500)
 
     canvas.allowTouchScrolling = true
     fabricRef.current = canvas
 
     loadFields(canvas)
 
-    // ✅ FIX REAL (CLICK + OFFSET)
+    // CLICK
     canvas.on('mouse:down', (opt: TPointerEventInfo<TPointerEvent>) => {
       if (modeRef.current === 'preview') return
       if (!opt.e) return
@@ -175,15 +210,8 @@ export default function CanvasEditor({
       const scaleX = canvas.getWidth() / rectBounds.width
       const scaleY = canvas.getHeight() / rectBounds.height
 
-      // OFFSET (AJUSTA AQUÍ SI NECESITAS)
-      const OFFSET_X = 6
-      const OFFSET_Y = 6
-
-      const x =
-        (event.clientX - rectBounds.left) * scaleX - OFFSET_X
-
-      const y =
-        (event.clientY - rectBounds.top) * scaleY - OFFSET_Y
+      const x = (event.clientX - rectBounds.left) * scaleX
+      const y = (event.clientY - rectBounds.top) * scaleY
 
       const newRect = createRect(
         x,
@@ -197,7 +225,7 @@ export default function CanvasEditor({
       canvas.setActiveObject(newRect)
     })
 
-    // ✅ DELETE
+    // DELETE
     const handleDelete = (e: KeyboardEvent) => {
       if (e.key === 'Backspace') {
         const active = canvas.getActiveObject()
@@ -211,7 +239,7 @@ export default function CanvasEditor({
 
     window.addEventListener('keydown', handleDelete)
 
-    // ✅ RESIZE CORRECTO
+    // RESIZE
     const observer = new ResizeObserver(() => {
       canvas.setDimensions({
         width: container.clientWidth,
@@ -222,6 +250,19 @@ export default function CanvasEditor({
     })
 
     observer.observe(container)
+
+    setTimeout(() => {
+      console.log('PDF CONTAINER', container)
+
+      const pageElement =
+        document.querySelector('.react-pdf__Page')
+
+      console.log(
+        'PDF PAGE',
+        pageElement?.clientWidth,
+        pageElement?.clientHeight
+      )
+    }, 1000)
 
     requestAnimationFrame(() => {
       onReady(saveFields)

@@ -45,7 +45,7 @@ export default function Home() {
       })
   }, [])
 
-  // ✅ VER SALAS
+  // VER SALAS
   async function loadRooms(documentId: string) {
     setRoomsLoading(prev => ({ ...prev, [documentId]: true }))
     setRoomsError(prev => ({ ...prev, [documentId]: '' }))
@@ -74,7 +74,7 @@ export default function Home() {
     }
   }
 
-  // ✅ ELIMINAR
+  // ELIMINAR
   async function handleDelete(id: string) {
     const confirmDelete = confirm('¿Seguro que quieres eliminar este documento?')
     if (!confirmDelete) return
@@ -96,7 +96,7 @@ export default function Home() {
 
       setMessage({
         type: 'success',
-        text: 'Documento eliminado correctamente ✅',
+        text: 'Documento eliminado correctamente',
       })
 
       setTimeout(() => setMessage(null), 3000)
@@ -122,7 +122,7 @@ export default function Home() {
         throw new Error()
       }
 
-      // ✅ actualizar estado correctamente
+      // actualizar estado correctamente
       setRooms(prev => ({
         ...prev,
         [documentId]: prev[documentId].filter(r => r.id !== roomId),
@@ -130,7 +130,7 @@ export default function Home() {
 
       setMessage({
         type: 'success',
-        text: 'Sala eliminada ✅',
+        text: 'Sala eliminada',
       })
 
       setTimeout(() => setMessage(null), 2000)

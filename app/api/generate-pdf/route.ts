@@ -42,8 +42,6 @@ export async function POST(req: Request) {
     const pdfDoc = await PDFDocument.load(existingPdfBytes)
     const pages = pdfDoc.getPages()
 
-    console.log('✅ PDF cargado, páginas:', pages.length)
-
     fields.forEach((field) => {
       const page = pages[field.pageIndex ?? 0]
       if (!page) return
@@ -90,7 +88,7 @@ export async function POST(req: Request) {
 
     const pdfBytes = await pdfDoc.save()
 
-    console.log('✅ PDF generado correctamente')
+    console.log('PDF generado correctamente')
 
     return new Response(new Uint8Array(pdfBytes), {
       headers: {

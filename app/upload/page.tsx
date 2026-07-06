@@ -5,7 +5,7 @@ import { Upload, FileText, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 
-// ✅ PDF Viewer dinámico
+// PDF Viewer dinámico
 const PDFViewer = dynamic(() => import('@/components/PDFViewer'), {
   ssr: false,
 })
@@ -105,7 +105,7 @@ export default function UploadPage() {
           onDragOver={(e) => e.preventDefault()}
         >
           
-          {/* ✅ CONTENIDO DINÁMICO */}
+          {/* CONTENIDO DINÁMICO */}
           {previewUrl ? (
 
             <>

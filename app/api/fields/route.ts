@@ -5,6 +5,11 @@ type FieldInput = {
   y: number
   width: number
   height: number
+  xRatio?: number 
+  yRatio?: number
+  widthRatio?: number
+  heightRatio?: number
+  page?: number
   type?: 'text' | 'signature'
 }
 
@@ -17,17 +22,17 @@ export async function POST(req: Request) {
 
     const { documentId, fields } = body
 
-    // ✅ validar documentId
+    // validar documentId
     if (!documentId) {
-      return new Response('Falta documentId ❌', { status: 400 })
+      return new Response('Falta documentId', { status: 400 })
     }
 
-    // ✅ validar fields
+    // validar fields
     if (!fields || !Array.isArray(fields)) {
       return new Response('Fields inválidos ❌', { status: 400 })
     }
 
-    // ✅ limpiar campos vacíos o inválidos
+    // limpiar campos vacíos o inválidos
     const cleanFields = fields.filter((f) => {
       return (
         typeof f.x === 'number' &&
@@ -39,31 +44,35 @@ export async function POST(req: Request) {
       )
     })
 
-    // ✅ si no hay campos válidos
     if (cleanFields.length === 0) {
       return new Response('No hay campos válidos ❌', { status: 400 })
     }
 
-    // ✅ eliminar campos anteriores
+    // eliminar campos anteriores
     await prisma.field.deleteMany({
       where: { documentId },
     })
 
-    // ✅ guardar nuevos
+    // guardar nuevos
     await prisma.field.createMany({
       data: cleanFields.map((f) => ({
         documentId,
         x: f.x,
         y: f.y,
         width: f.width,
-        height: f.height,
+        height: f.height,   
+        xRatio: f.xRatio,
+        yRatio: f.yRatio,
+        widthRatio: f.widthRatio,
+        heightRatio: f.heightRatio,
+        page: f.page || 1,
         type: f.type ?? 'text',
       })),
     })
 
     return Response.json({ ok: true })
   } catch (error) {
-    console.error('🔥 ERROR FIELDS:', error)
+    console.error('ERROR FIELDS:', error)
 
     return new Response('Error guardando campos ❌', {
       status: 500,

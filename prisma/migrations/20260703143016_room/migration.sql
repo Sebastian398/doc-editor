@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE `field` ADD COLUMN `heightRatio` DOUBLE NULL,
+    ADD COLUMN `page` INTEGER NOT NULL DEFAULT 1,
+    ADD COLUMN `widthRatio` DOUBLE NULL,
+    ADD COLUMN `xRatio` DOUBLE NULL,
+    ADD COLUMN `yRatio` DOUBLE NULL;
