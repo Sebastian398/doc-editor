@@ -25,7 +25,7 @@ export default function EditorPage({
   const [doc, setDoc] = useState<DocumentType | null>(null)
 
   // estados correctos
-  const [tool, setTool] = useState<'text' | 'signature'>('text')
+  const [tool, setTool] = useState<'text' | 'number' | 'signature'>('text')
   const [mode, setMode] = useState<'edit' | 'preview'>('edit')
   const [saveFn, setSaveFn] = useState<() => void>(() => () => {})
 
