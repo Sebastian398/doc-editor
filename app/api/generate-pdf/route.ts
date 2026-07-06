@@ -106,10 +106,14 @@ console.log('FILE URL:', fileUrl)
       }
 
       // FIRMA
-      if (
-        field.type === 'signature' &&
-        value
-      ) {
+      if (field.type === 'signature') {
+
+  console.log('FIRMA DETECTADA')
+
+  console.log(
+    value?.substring(0, 100)
+  )
+} {
         try {
           let image
 
