@@ -17,6 +17,14 @@ type DocumentType = {
 type RoomType = {
   id: string
   link: string
+
+  status:
+    | 'not_started'
+    | 'pending'
+    | 'completed'
+
+  totalFields: number
+  answeredFields: number
 }
 
 type MessageType = {
@@ -306,6 +314,32 @@ export default function Home() {
                     <p className="text-xs text-gray-500 break-all">
                       {`${window.location.origin}/room/${room.link}`}
                     </p>
+                    <div className="flex justify-between items-center text-xs">
+
+                    {room.status === 'completed' && (
+                      <span className="text-green-600 font-medium">
+                        Completada
+                      </span>
+                    )}
+
+                    {room.status === 'pending' && (
+                      <span className="text-amber-600 font-medium">
+                        Pendiente
+                      </span>
+                    )}
+
+                    {room.status === 'not_started' && (
+                      <span className="text-red-600 font-medium">
+                        Sin iniciar
+                      </span>
+                    )}
+
+                    <span className="text-gray-400">
+                      {room.answeredFields}/
+                      {room.totalFields}
+                    </span>
+
+                  </div>
 
                     {/* BOTONES */}
                     <div className="grid grid-cols-4 gap-2">
@@ -340,45 +374,38 @@ export default function Home() {
                       {/* DESCARGAR */}
                       <button
                         onClick={async () => {
-  
-  try {
-    console.log('INICIANDO DESCARGA')
+                          try {
+                            const res = await fetch(
+                              `/api/export-room/${room.id}`
+                            )
 
-    const res = await fetch(
-      `/api/export-room/${room.id}`
-    )
+                            if (!res.ok) {
+                              const error = await res.text()
+                              console.error(error)
+                              return
+                            }
 
-    console.log('STATUS:', res.status)
+                            const blob = await res.blob()
 
-    if (!res.ok) {
-      const error = await res.text()
-      console.error(error)
-      return
-    }
+                            const url = URL.createObjectURL(blob)
 
-    const blob = await res.blob()
+                            const a = document.createElement('a')
 
-    console.log('BLOB OK')
+                            a.href = url
+                            a.download = `${doc.name}-firmado.pdf`
 
-    const url = URL.createObjectURL(blob)
+                            a.click()
 
-    const a = document.createElement('a')
+                            URL.revokeObjectURL(url)
+                          } catch (error) {
+                            console.error(error)
 
-    a.href = url
-    a.download = `${doc.name}-firmado.pdf`
-
-    a.click()
-
-    URL.revokeObjectURL(url)
-  } catch (error) {
-    console.error(error)
-
-    setMessage({
-      type: 'error',
-      text: 'Error descargando PDF ❌',
-    })
-  }
-}}
+                            setMessage({
+                              type: 'error',
+                              text: 'Error descargando PDF',
+                            })
+                          }
+                        }}
                         className="flex items-center justify-center h-10 rounded bg-green-100 text-green-600 hover:bg-green-200 transition"
                         title="Descargar PDF"
                       >
