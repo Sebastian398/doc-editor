@@ -109,14 +109,14 @@ export default function UploadPage() {
           {previewUrl ? (
 
             <>
-              {/* 📄 PREVIEW */}
+              {/* PREVIEW */}
               <div className="w-full h-52 overflow-hidden bg-gray-50 rounded-md mb-3">
                 <div className="scale-[0.4] origin-top-left pointer-events-none">
                   <PDFViewer file={previewUrl} preview/>
                 </div>
               </div>
 
-              {/* 📄 NOMBRE */}
+              {/* NOMBRE */}
               <div className="flex flex-col items-center">
                 <FileText size={18} className="text-blue-500 mb-1" />
                 <span className="text-sm font-medium text-gray-700">

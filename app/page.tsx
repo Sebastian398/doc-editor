@@ -35,7 +35,12 @@ export default function Home() {
   const [roomsError, setRoomsError] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState<MessageType | null>(null)
-
+  const [stats, setStats] = useState({
+    total: 0,
+    completed: 0,
+    pending: 0,
+    percentage: 0,
+  })
   useEffect(() => {
     fetch('/api/documents')
       .then((res) => res.json())
@@ -43,6 +48,9 @@ export default function Home() {
         setDocs(data)
         setLoading(false)
       })
+    fetch('/api/dashboard/stats')
+      .then(res => res.json())
+      .then(data => setStats(data))
   }, [])
 
   // VER SALAS
@@ -138,7 +146,7 @@ export default function Home() {
     } catch {
       setMessage({
         type: 'error',
-        text: 'Error eliminando sala ❌',
+        text: 'Error eliminando sala',
       })
     }
   }
@@ -148,9 +156,7 @@ export default function Home() {
 
       {/* HEADER */}
       <header className="bg-white border-b shadow-sm px-6 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-gray-800">
-          📄 Gestor de Documentos
-        </h1>
+        <h1 className="text-xl font-bold text-gray-800">Gestor de Documentos</h1>
 
         <Link
           href="/upload"
@@ -160,6 +166,53 @@ export default function Home() {
           Subir documento
         </Link>
       </header>
+
+      {/* STATS*/}
+      <div className="max-w-6xl mx-auto px-6 pt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+          <div className="bg-white rounded-xl shadow p-5">
+            <p className="text-gray-500 text-sm">
+              Total documentos
+            </p>
+
+            <h2 className="text-3xl font-bold text-gray-800">
+              {stats.total}
+            </h2>
+          </div>
+
+          <div className="bg-white rounded-xl shadow p-5">
+            <p className="text-gray-500 text-sm">
+              Completados
+            </p>
+
+            <h2 className="text-3xl font-bold text-green-600">
+              {stats.completed}
+            </h2>
+          </div>
+
+          <div className="bg-white rounded-xl shadow p-5">
+            <p className="text-gray-500 text-sm">
+              Pendientes
+            </p>
+
+            <h2 className="text-3xl font-bold text-amber-500">
+              {stats.pending}
+            </h2>
+          </div>
+
+          <div className="bg-white rounded-xl shadow p-5">
+            <p className="text-gray-500 text-sm">
+              Completitud
+            </p>
+
+            <h2 className="text-3xl font-bold text-blue-600">
+              {stats.percentage}%
+            </h2>
+          </div>
+
+        </div>
+      </div>
 
       {/* CONTENIDO */}
       <main className="p-6 max-w-6xl mx-auto">
