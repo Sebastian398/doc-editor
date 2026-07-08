@@ -21,6 +21,8 @@ type Field = {
   widthRatio?: number
   heightRatio?: number
   page?: number
+  pageWidth?: number
+  pageHeight?: number
   type?: 'text' | 'signature' | 'number'
 }
 
@@ -49,6 +51,15 @@ export default function RoomPage({
     width: 1,
     height: 1,
   })
+  const [pagesInfo, setPagesInfo] = useState<
+  {
+    pageNumber: number
+    pdfWidth: number
+    pdfHeight: number
+    renderWidth: number
+    renderHeight: number
+  }[]
+>([])
   useEffect(() => {
     async function load() {
       try {
@@ -77,11 +88,6 @@ export default function RoomPage({
       }
     }
     setTimeout(() => {
-      console.log(
-        'ROOM CONTAINER',
-        containerRef.current?.offsetWidth,
-        containerRef.current?.offsetHeight
-      )
     }, 1500)
     load()
   }, [params])
@@ -95,11 +101,6 @@ export default function RoomPage({
         height: containerRef.current?.clientHeight || 1,
       })
     }
-    console.log(
-      'ROOM SIZE',
-      containerRef.current?.clientWidth,
-      containerRef.current?.clientHeight
-    )
 
     updateSize()
 
@@ -107,14 +108,8 @@ export default function RoomPage({
 
     observer.observe(containerRef.current)
     setTimeout(() => {
-      const pageElement =
-        document.querySelector('.react-pdf__Page')
+      document.querySelector('.react-pdf__Page')
 
-      console.log(
-        'ROOM PDF PAGE',
-        pageElement?.clientWidth,
-        pageElement?.clientHeight
-      )
     }, 1000)
     return () => observer.disconnect()
   }, [data])
@@ -215,33 +210,39 @@ export default function RoomPage({
 
           <PDFViewer
             file={data.document.fileUrl}
-            onLoad={() => {
-              setTimeout(() => {
-                console.log(
-                  'AFTER PDF LOAD',
-                  containerRef.current?.clientWidth,
-                  containerRef.current?.clientHeight
-                )
-              }, 500)
-            }}
+            onPagesRendered={setPagesInfo}
           />
 
           {data.document.fields.map((f) => {
             const isSignature = f.type === 'signature'
             const isNumber = f.type === 'number'
-            console.log({
-  id: f.id,
-  top:
-    f.yRatio != null
-      ? f.yRatio * containerSize.height
-      : f.y,
+            const pageInfo =
+            pagesInfo.find(
+              p =>
+                p.pageNumber ===
+                (f.page ?? 1)
+            )
 
-  left:
-    f.xRatio != null
-      ? f.xRatio * containerSize.width
-      : f.x,
-})
-            return (
+          const renderWidth =
+            pageInfo?.renderWidth ??
+            containerSize.width
+
+          const renderHeight =
+            pageInfo?.renderHeight ??
+            containerSize.height
+          const pageOffsetTop =
+            pagesInfo
+              .filter(
+                p =>
+                  p.pageNumber <
+                  (f.page ?? 1)
+              )
+              .reduce(
+                (total, p) =>
+                  total + p.renderHeight,
+                0
+              )
+          return (
               <div
                 key={f.id}
                 style={{
@@ -249,22 +250,23 @@ export default function RoomPage({
 
                   top:
                     f.yRatio != null
-                      ? f.yRatio * containerSize.height
-                      : f.y,
+                      ? pageOffsetTop +
+                            (f.yRatio * renderHeight)
+                          : f.y,
 
                   left:
                     f.xRatio != null
-                      ? f.xRatio * containerSize.width
+                      ? f.xRatio * renderWidth
                       : f.x,
 
                   width:
                     f.widthRatio != null
-                      ? f.widthRatio * containerSize.width
+                      ? f.widthRatio * renderWidth
                       : f.width,
 
                   height:
                     f.heightRatio != null
-                      ? f.heightRatio * containerSize.height
+                      ? f.heightRatio * renderHeight
                       : f.height,
 
                   zIndex: 10,

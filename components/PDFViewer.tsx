@@ -17,8 +17,10 @@ type Props = {
   onPagesRendered?: (
     pages: {
       pageNumber: number
-      width: number
-      height: number
+      pdfWidth: number
+      pdfHeight: number
+      renderWidth: number
+      renderHeight: number
     }[]
   ) => void
 }
@@ -34,8 +36,10 @@ export default function PDFViewer({
   const [pagesInfo, setPagesInfo] = useState<
     {
       pageNumber: number
-      width: number
-      height: number
+      pdfWidth: number
+      pdfHeight: number  
+      renderWidth: number
+      renderHeight: number
     }[]
   >([])
 
@@ -91,16 +95,24 @@ export default function PDFViewer({
               renderAnnotationLayer={false}
               renderTextLayer={false}
               onRenderSuccess={(page) => {
+                const view =
+                  page._pageInfo.view
+
+                const pdfWidth =
+                  view[2]
+
+                const pdfHeight =
+                  view[3]
 
                 const pageData = {
-                  pageNumber:
-                    index + 1,
-                  width:
-                    page.width,
-                  height:
-                    page.height,
-                }
+                  pageNumber: index + 1,
 
+                  pdfWidth,
+                  pdfHeight,
+
+                  renderWidth: page.width,
+                  renderHeight: page.height,
+                }
                 setPagesInfo(prev => {
 
                   const exists =

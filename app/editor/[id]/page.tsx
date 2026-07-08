@@ -31,8 +31,10 @@ export default function EditorPage({
   const [pagesInfo, setPagesInfo] = useState<
     {
       pageNumber: number
-      width: number
-      height: number
+      pdfWidth: number
+      pdfHeight: number
+      renderWidth: number
+      renderHeight: number
     }[]
   >([])
   useEffect(() => {

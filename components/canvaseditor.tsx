@@ -14,6 +14,8 @@ type FieldFromDB = {
   widthRatio?: number
   heightRatio?: number
   page?: number
+  pageWidth?: number
+  pageHeight?: number
   type?: 'text' | 'signature' | 'number'
 }
 
@@ -28,8 +30,10 @@ type Props = {
   
   pagesInfo: {
     pageNumber: number
-    width: number
-    height: number
+    pdfWidth: number
+    pdfHeight: number  
+    renderWidth: number
+    renderHeight: number
   }[]
 
   onReady: (saveFn: () => void) => void
@@ -47,6 +51,7 @@ export default function CanvasEditor({
 
   const toolRef = useRef(tool)
   const modeRef = useRef(mode)
+  const pagesInfoRef = useRef(pagesInfo)
 
   useEffect(() => {
     toolRef.current = tool
@@ -57,6 +62,10 @@ export default function CanvasEditor({
     modeRef.current = mode
     updateVisibility()
   }, [mode])
+
+  useEffect(() => {
+    pagesInfoRef.current = pagesInfo
+  }, [pagesInfo])
 
   // VISIBILIDAD
   function updateVisibility() {
@@ -141,65 +150,89 @@ export default function CanvasEditor({
     const canvasWidth = canvas.getWidth()
     const canvasHeight = canvas.getHeight()
     const fields = canvas.getObjects().map((obj) => {
-      const o = obj as FabricRectWithType
+  const o = obj as FabricRectWithType
 
-    const bounds = o.getBoundingRect()
-    let pageNumber = 1
-let localY = bounds.top
-let pageHeight = canvasHeight
+  const bounds = o.getBoundingRect()
 
-let accumulatedTop = 0
+  let pageNumber = 1
+  let localY = bounds.top
 
-for (const page of pagesInfo) {
+  let currentPageInfo:
+    (typeof pagesInfo)[number]
+    | undefined
 
-  const pageTop = accumulatedTop
+  let currentPageRenderHeight =
+    canvasHeight
 
-  const pageBottom =
-    accumulatedTop + page.height
+  let accumulatedTop = 0
 
-  if (
-    bounds.top >= pageTop &&
-    bounds.top < pageBottom
-  ) {
-    pageNumber = page.pageNumber
+  for (const page of pagesInfoRef.current) {
+    const pageTop =
+      accumulatedTop
 
-    localY =
-      bounds.top - pageTop
+    const pageBottom =
+      accumulatedTop +
+      page.renderHeight
 
-    pageHeight =
-      page.height
+    if (
+      bounds.top >= pageTop &&
+      bounds.top < pageBottom
+    ) {
+      pageNumber =
+        page.pageNumber
 
-    break
+      localY =
+        bounds.top -
+        pageTop
+
+      currentPageInfo =
+        page
+
+      currentPageRenderHeight =
+        page.renderHeight
+
+      break
+    }
+
+    accumulatedTop +=
+      page.renderHeight
   }
 
-  accumulatedTop += page.height
-}
+  return {
+    x: bounds.left,
+    y: bounds.top,
 
-return {
-  x: bounds.left,
-  y: bounds.top,
-  width: bounds.width,
-  height: bounds.height,
+    width: bounds.width,
+    height: bounds.height,
 
-  xRatio:
-    bounds.left / canvasWidth,
+    xRatio:
+      bounds.left /
+      canvasWidth,
 
-  yRatio:
-    localY / pageHeight,
+    yRatio:
+      localY /
+      currentPageRenderHeight,
 
-  widthRatio:
-    bounds.width / canvasWidth,
+    widthRatio:
+      bounds.width /
+      canvasWidth,
 
-  heightRatio:
-    bounds.height / pageHeight,
+    heightRatio:
+      bounds.height /
+      currentPageRenderHeight,
 
-  page: pageNumber,
+    page: pageNumber,
 
-  type:
-    o.fieldType || 'text',
-}
-    })
+    pageWidth:
+      currentPageInfo?.pdfWidth,
 
+    pageHeight:
+      currentPageInfo?.pdfHeight,
+
+    type:
+      o.fieldType || 'text',
+  }
+})
     await fetch('/api/fields', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -228,7 +261,7 @@ return {
     loadFields(canvas)
 
     canvas.on('object:modified', () => {
-      saveFields()
+        saveFields()
     })
 
     // CLICK
@@ -266,7 +299,7 @@ return {
 
       canvas.add(newRect)
       canvas.setActiveObject(newRect)
-      saveFields()
+        saveFields()
     })
 
     // DELETE

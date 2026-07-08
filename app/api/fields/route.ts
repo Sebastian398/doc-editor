@@ -10,6 +10,8 @@ type FieldInput = {
   widthRatio?: number
   heightRatio?: number
   page?: number
+  pageWidth?: number
+  pageHeight?: number
   type?: 'text' | 'signature'
 }
 
@@ -44,11 +46,6 @@ export async function POST(req: Request) {
       )
     })
 
-    if (cleanFields.length === 0) {
-      return new Response('No hay campos válidos ❌', { status: 400 })
-    }
-
-    // eliminar campos anteriores
     await prisma.field.deleteMany({
       where: { documentId },
     })
@@ -66,6 +63,8 @@ export async function POST(req: Request) {
         widthRatio: f.widthRatio,
         heightRatio: f.heightRatio,
         page: f.page || 1,
+        pageWidth: f.pageWidth,
+        pageHeight: f.pageHeight,
         type: f.type ?? 'text',
       })),
     })

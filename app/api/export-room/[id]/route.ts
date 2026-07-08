@@ -12,14 +12,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    console.log('==============================')
-    console.log('1 - INICIO EXPORTACION')
-    console.log('==============================')
-
     const { id } = await params
-
-    console.log('2 - ROOM ID:', id)
-
     const room = await prisma.room.findUnique({
       where: {
         id,
@@ -35,8 +28,6 @@ export async function GET(
     })
 
     if (!room) {
-      console.log('ROOM NO EXISTE')
-
       return new Response(
         'Sala no encontrada',
         {
@@ -45,22 +36,12 @@ export async function GET(
       )
     }
 
-    console.log('3 - ROOM ENCONTRADA')
-    console.log('ROOM:', room.id)
-    console.log('DOC:', room.document.name)
-    console.log('PDF URL DB:', room.document.fileUrl)
-
     const baseUrl =
       process.env.NEXT_PUBLIC_APP_URL ||
       'http://localhost:3000'
 
-    console.log('4 - BASE URL:', baseUrl)
-
     const pdfUrl =
       `${baseUrl}${room.document.fileUrl}`
-
-    console.log('5 - PDF URL FINAL:')
-    console.log(pdfUrl)
 
     const pdfResponse =
       await fetch(pdfUrl)
@@ -77,28 +58,16 @@ export async function GET(
     const pdfBytes =
       await pdfResponse.arrayBuffer()
 
-    console.log('6 - PDF BYTES:',
-      pdfBytes.byteLength
-    )
-
     const pdfDoc =
       await PDFDocument.load(pdfBytes)
 
-    console.log('7 - PDF CARGADO')
-
     const pages =
       pdfDoc.getPages()
-
-    console.log('8 - PAGINAS:',
-      pages.length
-    )
 
     const font =
       await pdfDoc.embedFont(
         StandardFonts.Helvetica
       )
-
-    console.log('9 - FUENTE OK')
 
     for (const field of room.document.fields) {
       const response =
@@ -113,10 +82,6 @@ export async function GET(
         pages[(field.page ?? 1) - 1]
 
       if (!page) {
-        console.log(
-          'PAGINA NO EXISTE PARA',
-          field.id
-        )
         continue
       }
 
@@ -126,29 +91,53 @@ export async function GET(
       const pageWidth = page.getWidth()
       const pageHeight = page.getHeight()
 
-    const x =
-    field.xRatio != null
-        ? field.xRatio * pageWidth
-        : field.x
+      const scaleX =
+        field.pageWidth
+          ? pageWidth / field.pageWidth
+          : 1
 
-    const width =
-    field.widthRatio != null
-        ? field.widthRatio * pageWidth
-        : field.width
+      const scaleY =
+        field.pageHeight
+          ? pageHeight / field.pageHeight
+          : 1
 
-    const heightField =
-    field.heightRatio != null
-        ? field.heightRatio * pageHeight
-        : field.height
+      const width =
+        field.widthRatio != null
+          ? (
+              field.widthRatio *
+              field.pageWidth!
+            ) * scaleX
+          : field.width
 
-    const y =
-    field.yRatio != null
-        ? pageHeight -
-        (field.yRatio * pageHeight) -
-        heightField
-        : pageHeight -
-        field.y -
-        field.height
+      const heightField =
+        field.heightRatio != null
+          ? (
+              field.heightRatio *
+              field.pageHeight!
+            ) * scaleY
+          : field.height
+
+      const x =
+        field.xRatio != null
+          ? (
+              field.xRatio *
+              field.pageWidth!
+            ) * scaleX
+          : field.x
+
+      const y =
+        field.yRatio != null
+          ? pageHeight -
+            (
+              (
+                field.yRatio *
+                field.pageHeight!
+              ) * scaleY
+            ) -
+            heightField
+          : pageHeight -
+            field.y -
+            field.height
 
       // TEXTO
 
@@ -163,12 +152,6 @@ export async function GET(
           font,
           color: rgb(0, 0, 0),
         })
-
-        console.log(
-          'TEXT OK:',
-          field.id
-        )
-
         continue
       }
 
@@ -184,11 +167,6 @@ export async function GET(
               5,
               value.indexOf(';')
             )
-
-          console.log(
-            'MIME:',
-            mimeType
-          )
 
           const base64 =
             value.split(',')[1]
@@ -229,20 +207,6 @@ export async function GET(
               y,
               width,
               height: heightField,
-            })
-
-            console.log(
-              'FIRMA DIBUJADA:',
-              field.id
-            )
-
-            console.log({
-              x,
-              y,
-              width:
-                field.width,
-              height:
-                field.height,
             })
           }
         } catch (error) {
