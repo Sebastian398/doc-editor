@@ -214,7 +214,7 @@ export default function Home() {
 
           <div className="bg-white rounded-xl shadow p-5">
             <p className="text-gray-500 text-sm">
-              Total documentos
+              Total salas
             </p>
 
             <h2 className="text-3xl font-bold text-gray-800">
@@ -224,7 +224,7 @@ export default function Home() {
 
           <div className="bg-white rounded-xl shadow p-5">
             <p className="text-gray-500 text-sm">
-              Completados
+              Completadas
             </p>
 
             <h2 className="text-3xl font-bold text-green-600">

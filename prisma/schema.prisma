@@ -14,6 +14,7 @@ model Document {
   createdAt DateTime @default(now())
   fields    Field[]
   rooms  Room[]
+  flowDocuments FlowDocument[]
 }
 
 model Field {
@@ -40,14 +41,37 @@ model Room {
   documentId String
   link       String   @unique
   createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
   document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
   responses  Response[]
 }
 model Response {
   id       String @id @default(cuid())
-  value    String
+  value    String @db.LongText
   fieldId  String
   field   Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
   roomId   String
   room   Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+}
+model Flow {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  documents FlowDocument[]
+  rooms FlowRoom[]
+}
+model FlowDocument {
+  id         String @id @default(cuid())
+  flowId     String
+  documentId String
+  flow       Flow     @relation(fields: [flowId], references: [id], onDelete: Cascade)
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  @@unique([flowId, documentId])
+}
+model FlowRoom {
+  id        String @id @default(cuid())
+  flowId    String
+  link      String @unique
+  flow      Flow @relation(fields: [flowId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }
