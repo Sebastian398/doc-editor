@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react'
 
 type FlowType = {
   id: string;
@@ -58,14 +59,24 @@ export default function FlowsPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Flows</h1>
+      {/* HEADER */}
+      <header className="bg-white border-b shadow-sm px-6 py-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="text-gray-600 hover:text-black">
+              <ArrowLeft size={18} />
+            </Link>
+            <h1 className="font-semibold text-gray-800">
+              Flows
+            </h1>
+          </div>
 
-       <Link  href="/flows/new py-2 rounded hover:bg-blue-700 transition"
-        >
-          Nuevo Flow
-        </Link>
-      </div>
+          {/* BOTÓN */}
+          <Link href="/flows/new" className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition">
+              Nuevo Flow
+          </Link>
+        </div>
+      </header>
 
       {flows.length === 0 ? (
         <div className="bg-white p-4 rounded shadow">
