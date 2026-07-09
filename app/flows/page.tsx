@@ -164,14 +164,15 @@ async function generateLink(
                 key={flow.id}
                 className="bg-white rounded-xl shadow-md hover:shadow-lg p-4 transition border p-5"
               >
-                <h2 className="font-semibold text-lg text-gray-800 mb-3 truncate">{flow.name}</h2>
-                <div className="mb-4">
-                  <span className=" px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
-                    {flow.items.length} sala
-                    {flow.items.length !== 1 ? 's' : ''}
-                  </span>
-                </div>
-                
+                <div className="flex items-center justify-between gap-3 mb-4">
+                <h2 className="font-semibold text-lg text-gray-800 truncate flex-1">
+                  {flow.name}
+                </h2>
+                <span className="shrink-0 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+                  {flow.items.length} sala
+                  {flow.items.length !== 1 ? 's' : ''}
+                </span>
+              </div>
                 <div className="space-y-2 mt-3 max-h-48 overflow-auto">
                   {flow.items.slice(0, 4).map((item) => (
                     <div
