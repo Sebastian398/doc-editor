@@ -43,6 +43,14 @@ export default function Home() {
   const [roomsError, setRoomsError] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState<MessageType | null>(null)
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] =
+  useState<
+    'all' |
+    'completed' |
+    'pending' |
+    'not_started'
+  >('all')
   const [stats, setStats] = useState({
     total: 0,
     completed: 0,
@@ -163,16 +171,41 @@ export default function Home() {
     <div className="min-h-screen bg-gray-100">
 
       {/* HEADER */}
-      <header className="bg-white border-b shadow-sm px-6 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-gray-800">Gestor de Documentos</h1>
+      <header className="bg-white border-b shadow-sm px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center gap-4">
 
-        <Link
-          href="/upload"
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"
-        >
-          <Plus size={18} />
-          Subir documento
-        </Link>
+          <h1 className="text-xl font-bold text-gray-800 whitespace-nowrap">
+            Gestor de Documentos
+          </h1>
+
+          <input
+            type="text"
+            placeholder="Buscar documento..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="
+              flex-1
+              bg-gray-50
+              border
+              rounded-lg
+              px-4
+              py-2
+              text-black
+              focus:outline-none
+              focus:ring-2
+              focus:ring-blue-500
+            "
+          />
+
+          <Link
+            href="/upload"
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"
+          >
+            <Plus size={16} />
+            Subir documento
+          </Link>
+
+        </div>
       </header>
 
       {/* STATS*/}
@@ -246,7 +279,15 @@ export default function Home() {
         {!loading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
 
-            {docs.map((doc) => (
+            {docs
+              .filter(doc =>
+                doc.name
+                  .toLowerCase()
+                  .includes(
+                    search.toLowerCase()
+                  )
+              )
+              .map((doc) => (
               <div
                 key={doc.id}
                 className="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition flex flex-col justify-between"
@@ -317,19 +358,19 @@ export default function Home() {
                     <div className="flex justify-between items-center text-xs">
 
                     {room.status === 'completed' && (
-                      <span className="text-green-600 font-medium">
+                      <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
                         Completada
                       </span>
                     )}
 
                     {room.status === 'pending' && (
-                      <span className="text-amber-600 font-medium">
+                      <span className="px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
                         Pendiente
                       </span>
                     )}
 
                     {room.status === 'not_started' && (
-                      <span className="text-red-600 font-medium">
+                      <span className="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-600">
                         Sin iniciar
                       </span>
                     )}
