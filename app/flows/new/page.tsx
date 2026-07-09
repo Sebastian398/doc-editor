@@ -5,26 +5,53 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
-type DocumentType = {
+type RoomType = {
   id: string
-  name: string
+  link: string
+  documentName: string
+  occupied: boolean
 }
 
 export default function NewFlowPage() {
   const router = useRouter()
 
   const [name, setName] = useState('')
-  const [docs, setDocs] = useState<DocumentType[]>([])
-  const [selectedDocs, setSelectedDocs] =
+  const [rooms, setRooms] = useState<RoomType[]>([])
+  const [selectedRooms, setSelectedRooms] =
     useState<string[]>([])
 
   useEffect(() => {
-    fetch('/api/documents')
-      .then(res => res.json())
-      .then(setDocs)
+    async function loadRooms() {
+      try {
+        const res = await fetch('/api/rooms/all')
+
+        if (!res.ok) {
+          throw new Error(
+            'Error cargando salas'
+          )
+        }
+
+        const data = await res.json()
+
+        setRooms(data)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    loadRooms()
   }, [])
 
   async function createFlow() {
+    if (!name.trim()) {
+      alert('Ingresa un nombre para el Flow')
+      return
+    }
+
+    if (selectedRooms.length === 0) {
+      alert('Selecciona al menos una sala')
+      return
+    }
     const res = await fetch('/api/flows', {
       method: 'POST',
       headers: {
@@ -32,7 +59,7 @@ export default function NewFlowPage() {
       },
       body: JSON.stringify({
         name,
-        documentIds: selectedDocs,
+        roomIds: selectedRooms,
       }),
     })
 
@@ -47,39 +74,27 @@ export default function NewFlowPage() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* HEADER */}
-      <div className="bg-white shadow-sm border-b px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/flows/" className="text-gray-600 hover:text-black">
-            <ArrowLeft size={18} />
-          </Link>
+      <header className="bg-white border-b shadow-sm px-6 py-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link href="/flows/" className="text-gray-600 hover:text-black">
+              <ArrowLeft size={18} />
+            </Link>
+            <h1 className="font-semibold text-gray-800">
+              Nuevo Flow
+            </h1>
+          </div>
 
-          <h1 className="font-semibold text-gray-800">
-            Nuevo Flow
-          </h1>
+          {/* BOTÓN */}
+          <button
+            onClick={createFlow}
+            className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition shadow"
+          >
+            Crear Flow
+          </button>
         </div>
-
-        {/* BOTÓN */}
-          <div className="mt-8 flex justify-end">
-            <button
-              onClick={createFlow}
-              className="
-                px-6
-                py-3
-                bg-blue-600
-                text-white
-                rounded-lg
-                font-medium
-                shadow-sm
-                hover:bg-blue-700
-                hover:shadow-md
-                transition
-              "
-            >
-              Crear Flow
-            </button>
-            </div>
-      </div>
-      <div className="max-w-5xl mx-auto p-6">
+      </header>
+      <main className="max-w-6xl mx-auto p-6">
 
         <div className="bg-white rounded-xl shadow-md border border-gray-100 p-8">
 
@@ -90,15 +105,22 @@ export default function NewFlowPage() {
             </h1>
 
             <p className="text-sm text-gray-500 mt-1">
-              Agrupa varios documentos en un único proceso.
+              Agrupa varias salas en un único proceso.
             </p>
           </div>
 
           {/* CONTADOR */}
           <div className="mb-6">
             <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm font-medium">
-              {selectedDocs.length} documento(s) seleccionado(s)
+              {selectedRooms.length} sala(s) seleccionada(s)
             </span>
+            <p className="text-sm text-gray-500 mt-2">
+              {
+                rooms.filter(
+                  room => !room.occupied
+                ).length
+              } salas disponibles
+            </p>
           </div>
 
           {/* NOMBRE */}
@@ -133,14 +155,14 @@ export default function NewFlowPage() {
           {/* DOCUMENTOS */}
           <div>
             <h2 className="text-sm font-medium text-gray-600 mb-4">
-              Selecciona los documentos
+              Selecciona las salas
             </h2>
 
             <div className="grid gap-3 max-h-[420px] overflow-y-auto pr-2">
 
-              {docs.map(doc => (
+              {rooms.map(room => (
                 <label
-                  key={doc.id}
+                  key={room.id}
                   className={`
                     flex
                     items-center
@@ -153,7 +175,12 @@ export default function NewFlowPage() {
                     hover:bg-gray-50
                     hover:border-blue-300
                     ${
-                      selectedDocs.includes(doc.id)
+                      room.occupied      
+                      ? 'opacity-60 cursor-not-allowed bg-gray-50 border-gray-200'      
+                      : 'cursor-pointer hover:bg-gray-50 hover:border-blue-300'
+                    }
+                    ${
+                      selectedRooms.includes(room.id)
                         ? 'border-blue-400 bg-blue-50'
                         : 'border-gray-200 bg-white'
                     }
@@ -161,17 +188,18 @@ export default function NewFlowPage() {
                 >
                   <input
                     type="checkbox"
-                    checked={selectedDocs.includes(doc.id)}
+                    disabled={room.occupied}
+                    checked={selectedRooms.includes(room.id)}
                     onChange={(e) => {
                       if (e.target.checked) {
-                        setSelectedDocs(prev => [
+                        setSelectedRooms(prev => [
                           ...prev,
-                          doc.id,
+                          room.id,
                         ])
                       } else {
-                        setSelectedDocs(prev =>
+                        setSelectedRooms(prev =>
                           prev.filter(
-                            id => id !== doc.id
+                            id => id !== room.id
                           )
                         )
                       }
@@ -179,15 +207,51 @@ export default function NewFlowPage() {
                     className="w-4 h-4 accent-blue-600"
                   />
 
-                  <span className="text-gray-700 font-medium">
-                    {doc.name}
-                  </span>
+                  <div className="flex flex-col flex-1">
+                    <span className="text-gray-700 font-medium">
+                      {room.documentName}
+                    </span>
+
+                    <span className="text-xs text-gray-400">
+                      Sala: {room.link.slice(0, 10)}...
+                    </span>
+                  </div>
+
+                  {room.occupied ? (
+                    <span
+                      className="
+                        px-2
+                        py-1
+                        rounded-full
+                        bg-red-100
+                        text-red-600
+                        text-xs
+                        font-medium
+                      "
+                    >
+                      Ocupada
+                    </span>
+                  ) : (
+                    <span
+                      className="
+                        px-2
+                        py-1
+                        rounded-full
+                        bg-green-100
+                        text-green-600
+                        text-xs
+                        font-medium
+                      "
+                    >
+                      Libre
+                    </span>
+                  )}
                 </label>
               ))}
             </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

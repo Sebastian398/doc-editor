@@ -14,7 +14,6 @@ model Document {
   createdAt DateTime @default(now())
   fields    Field[]
   rooms  Room[]
-  flowDocuments FlowDocument[]
 }
 
 model Field {
@@ -44,6 +43,7 @@ model Room {
   updatedAt  DateTime @updatedAt
   document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
   responses  Response[]
+  flowItems FlowRoomItem[]
 }
 model Response {
   id       String @id @default(cuid())
@@ -57,16 +57,16 @@ model Flow {
   id        String   @id @default(cuid())
   name      String
   createdAt DateTime @default(now())
-  documents FlowDocument[]
+  items FlowRoomItem[]
   rooms FlowRoom[]
 }
-model FlowDocument {
-  id         String @id @default(cuid())
-  flowId     String
-  documentId String
-  flow       Flow     @relation(fields: [flowId], references: [id], onDelete: Cascade)
-  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  @@unique([flowId, documentId])
+model FlowRoomItem {
+  id     String @id @default(cuid())
+  flowId String
+  roomId String
+  flow   Flow @relation(fields: [flowId], references: [id], onDelete: Cascade)
+  room   Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  @@unique([flowId, roomId])
 }
 model FlowRoom {
   id        String @id @default(cuid())

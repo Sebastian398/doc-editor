@@ -3,9 +3,13 @@ import { prisma } from '@/lib/db'
 export async function GET() {
   const flows = await prisma.flow.findMany({
     include: {
-      documents: {
+      items: {
         include: {
-          document: true,
+          room: {
+            include: {
+              document: true,
+            },
+          },
         },
       },
     },
@@ -24,10 +28,10 @@ export async function POST(req: Request) {
     data: {
       name: body.name,
 
-      documents: {
-        create: body.documentIds.map(
-          (documentId: string) => ({
-            documentId,
+      items: {
+        create: body.roomIds.map(
+          (roomId: string) => ({
+            roomId,
           })
         ),
       },
