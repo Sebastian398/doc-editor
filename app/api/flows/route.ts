@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 export async function GET() {
   const flows = await prisma.flow.findMany({
     include: {
+      rooms: true,
       items: {
         include: {
           room: {
