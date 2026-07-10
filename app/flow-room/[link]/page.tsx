@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { FileText, ExternalLink, CheckCircle } from 'lucide-react'
+import { FileText, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 
 type FlowRoomData = {

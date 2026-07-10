@@ -15,7 +15,6 @@ type FlowType = {
     room: {
       id: string
       link: string
-      
       document: {
         name: string
       }

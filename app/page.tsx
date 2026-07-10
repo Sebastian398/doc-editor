@@ -171,40 +171,51 @@ export default function Home() {
     <div className="min-h-screen bg-gray-100">
 
       {/* HEADER */}
-      <header className="bg-white border-b shadow-sm px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center gap-4">
+      <header className="bg-white border-b shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between gap-6">
+            <div className="shrink-0">
+              <h1 className="text-2xl font-bold text-gray-800">
+                Gestor de Documentos
+              </h1>
+            </div>
+          
+          <div className="flex-1 max-w-xl">
+            <input
+              type="text"
+              placeholder="Buscar documento..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="
+                w-full
+                bg-gray-50
+                border
+                rounded-lg
+                px-4
+                py-2
+                text-black
+                focus:outline-none
+                focus:ring-2
+                focus:ring-blue-500
+              "
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/upload"
+              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"
+            >
+              <Plus size={16} />
+              Subir documento
+            </Link>
 
-          <h1 className="text-xl font-bold text-gray-800 whitespace-nowrap">
-            Gestor de Documentos
-          </h1>
-
-          <input
-            type="text"
-            placeholder="Buscar documento..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="
-              flex-1
-              bg-gray-50
-              border
-              rounded-lg
-              px-4
-              py-2
-              text-black
-              focus:outline-none
-              focus:ring-2
-              focus:ring-blue-500
-            "
-          />
-
-          <Link
-            href="/upload"
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"
-          >
-            <Plus size={16} />
-            Subir documento
-          </Link>
-
+            <Link href="/flows"
+              className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition shadow"
+            >
+              Flows
+            </Link>
+          </div>
+          </div>  
         </div>
       </header>
 
