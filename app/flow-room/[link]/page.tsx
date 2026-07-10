@@ -150,15 +150,15 @@ export default function FlowRoomPage() {
                         const totalFields = item.room.document.fields.length
                         const responses = item.room.responses.length
                         let status = 'Sin iniciar'
-                        let statusClass = 'bg-gray-100 text-gray-600'
+                        let statusClass = 'bg-gray-100 bg-red-100 text-red-600'
                         if (responses > 0) {
                             status = 'Pendiente'
-                            statusClass = 'bg-yellow-100 text-yellow-700'
+                            statusClass = 'bg-yellow-100 bg-yellow-100 text-yellow-600'
                         }
                         if (totalFields > 0 && responses >= totalFields
                         ) {
                             status = 'Completada'
-                            statusClass = 'bg-green-100 text-green-700'
+                            statusClass = 'bg-green-100 text-green-600'
                         }
                         return(
                             <div key={item.room.id}

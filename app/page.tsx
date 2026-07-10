@@ -323,7 +323,7 @@ export default function Home() {
                   {/* EDITAR */}
                   <Link
                     href={`/editor/${doc.id}`}
-                    className="flex items-center justify-center gap-2 bg-blue-100 text-blue-600 py-2 rounded"
+                    className="flex items-center justify-center gap-2 bg-blue-100 hover:bg-blue-200 text-blue-600 py-2 rounded"
                   >
                     <Pencil size={16} />
                     Editar
@@ -357,124 +357,126 @@ export default function Home() {
                     </p>
                   )}
 
-                  {rooms[doc.id]?.map((room) => (
-                  <div
-                    key={room.id}
-                    className="bg-gray-50 border rounded-lg p-3 flex flex-col gap-2"
-                  >
-                    {/* LINK */}
-                    <p className="text-xs text-gray-500 break-all">
-                      {`${window.location.origin}/room/${room.link}`}
-                    </p>
-                    <div className="flex justify-between items-center text-xs">
+                  <div className="max-h-80 overflow-y-auto space-y-2 pr-1">
+                    {rooms[doc.id]?.map((room) => (
+                    <div
+                      key={room.id}
+                      className="bg-gray-50 border rounded-lg p-3 flex flex-col gap-2"
+                    >
+                      {/* LINK */}
+                      <p className="text-xs text-gray-500 break-all">
+                        {`${window.location.origin}/room/${room.link}`}
+                      </p>
+                      <div className="flex justify-between items-center text-xs">
 
-                    {room.status === 'completed' && (
-                      <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                        Completada
+                      {room.status === 'completed' && (
+                        <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                          Completada
+                        </span>
+                      )}
+
+                      {room.status === 'pending' && (
+                        <span className="px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
+                          Pendiente
+                        </span>
+                      )}
+
+                      {room.status === 'not_started' && (
+                        <span className="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-600">
+                          Sin iniciar
+                        </span>
+                      )}
+
+                      <span className="text-gray-400">
+                        {room.answeredFields}/
+                        {room.totalFields}
                       </span>
-                    )}
 
-                    {room.status === 'pending' && (
-                      <span className="px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
-                        Pendiente
-                      </span>
-                    )}
+                    </div>
 
-                    {room.status === 'not_started' && (
-                      <span className="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-600">
-                        Sin iniciar
-                      </span>
-                    )}
+                      {/* BOTONES */}
+                      <div className="grid grid-cols-4 gap-2">
 
-                    <span className="text-gray-400">
-                      {room.answeredFields}/
-                      {room.totalFields}
-                    </span>
+                        {/* ABRIR */}
+                        <Link
+                          href={`/room/${room.link}`}
+                          className="flex items-center justify-center h-10 rounded bg-purple-100 text-purple-600 hover:bg-purple-200 transition"
+                          title="Abrir sala"
+                        >
+                          <ExternalLink size={16} />
+                        </Link>
 
-                  </div>
-
-                    {/* BOTONES */}
-                    <div className="grid grid-cols-4 gap-2">
-
-                      {/* ABRIR */}
-                      <Link
-                        href={`/room/${room.link}`}
-                        className="flex items-center justify-center h-10 rounded bg-purple-100 text-purple-600 hover:bg-purple-200 transition"
-                        title="Abrir sala"
-                      >
-                        <ExternalLink size={16} />
-                      </Link>
-
-                      {/* COPIAR */}
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(
-                            `${window.location.origin}/room/${room.link}`
-                          )
-
-                          setMessage({
-                            type: 'success',
-                            text: 'Link copiado ✅',
-                          })
-                        }}
-                        className="flex items-center justify-center h-10 rounded bg-blue-100 text-blue-600 hover:bg-blue-200 transition"
-                        title="Copiar link"
-                      >
-                        <Copy size={16} />
-                      </button>
-
-                      {/* DESCARGAR */}
-                      <button
-                        onClick={async () => {
-                          try {
-                            const res = await fetch(
-                              `/api/export-room/${room.id}`
+                        {/* COPIAR */}
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(
+                              `${window.location.origin}/room/${room.link}`
                             )
 
-                            if (!res.ok) {
-                              const error = await res.text()
-                              console.error(error)
-                              return
-                            }
-
-                            const blob = await res.blob()
-
-                            const url = URL.createObjectURL(blob)
-
-                            const a = document.createElement('a')
-
-                            a.href = url
-                            a.download = `${doc.name}-firmado.pdf`
-
-                            a.click()
-
-                            URL.revokeObjectURL(url)
-                          } catch (error) {
-                            console.error(error)
-
                             setMessage({
-                              type: 'error',
-                              text: 'Error descargando PDF',
+                              type: 'success',
+                              text: 'Link copiado ✅',
                             })
-                          }
-                        }}
-                        className="flex items-center justify-center h-10 rounded bg-green-100 text-green-600 hover:bg-green-200 transition"
-                        title="Descargar PDF"
-                      >
-                        <Download size={16} />
-                      </button>
+                          }}
+                          className="flex items-center justify-center h-10 rounded bg-blue-100 text-blue-600 hover:bg-blue-200 transition"
+                          title="Copiar link"
+                        >
+                          <Copy size={16} />
+                        </button>
 
-                      {/* ELIMINAR */}
-                      <button
-                        onClick={() => handleDeleteRoom(doc.id, room.id)}
-                        className="flex items-center justify-center h-10 rounded bg-red-100 text-red-600 hover:bg-red-200 transition"
-                        title="Eliminar sala"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                        {/* DESCARGAR */}
+                        <button
+                          onClick={async () => {
+                            try {
+                              const res = await fetch(
+                                `/api/export-room/${room.id}`
+                              )
+
+                              if (!res.ok) {
+                                const error = await res.text()
+                                console.error(error)
+                                return
+                              }
+
+                              const blob = await res.blob()
+
+                              const url = URL.createObjectURL(blob)
+
+                              const a = document.createElement('a')
+
+                              a.href = url
+                              a.download = `${doc.name}-firmado.pdf`
+
+                              a.click()
+
+                              URL.revokeObjectURL(url)
+                            } catch (error) {
+                              console.error(error)
+
+                              setMessage({
+                                type: 'error',
+                                text: 'Error descargando PDF',
+                              })
+                            }
+                          }}
+                          className="flex items-center justify-center h-10 rounded bg-green-100 text-green-600 hover:bg-green-200 transition"
+                          title="Descargar PDF"
+                        >
+                          <Download size={16} />
+                        </button>
+
+                        {/* ELIMINAR */}
+                        <button
+                          onClick={() => handleDeleteRoom(doc.id, room.id)}
+                          className="flex items-center justify-center h-10 rounded bg-red-100 text-red-600 hover:bg-red-200 transition"
+                          title="Eliminar sala"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
                   {/* ELIMINAR */}
                   <button
                     onClick={() => handleDelete(doc.id)}

@@ -172,7 +172,7 @@ async function generateLink(
                   {flow.items.length !== 1 ? 's' : ''}
                 </span>
               </div>
-                <div className="space-y-2 mt-3 max-h-48 overflow-auto">
+                <div className="space-y-2 mt-3 max-h-50 overflow-auto">
                   {flow.items.slice(0, 4).map((item) => (
                     <div
                       key={item.room.id}
