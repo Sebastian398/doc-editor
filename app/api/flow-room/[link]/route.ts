@@ -19,7 +19,12 @@ export async function GET(
               include: {
                 room: {
                   include: {
-                    document: true,
+                    document: {
+                      include: {
+                        fields: true,
+                      },
+                    },
+                    responses: true,  
                   },
                 },
               },
