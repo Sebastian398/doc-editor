@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db'
+import crypto from 'crypto'
 
 export async function GET() {
   const flows = await prisma.flow.findMany({
@@ -36,6 +37,14 @@ export async function POST(req: Request) {
           })
         ),
       },
+      rooms: {
+        create: {
+          link: crypto.randomUUID(),
+        },
+      },
+    },
+    include: {
+      rooms: true,
     },
   })
 

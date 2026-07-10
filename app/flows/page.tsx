@@ -191,12 +191,12 @@ async function generateLink(
                   {/* BOTONES */}
                   <div className="grid grid-cols-4 gap-2">
                     {/* ABRIR */}
-                    <Link href={`/flow*/${flow.id}`} 
+                    <Link href={`${window.location.origin}/flow-room/${flow.rooms[0]?.link}`} 
                       className="flex items-center justify-center h-10 rounded bg-purple-100 text-purple-600 hover:bg-purple-200 transition">
                       <ExternalLink size={16} />
                     </Link>
                     {/* COPIAR */}
-                    <button onClick={() => navigator.clipboard.writeText(`/flow*/${flow.id}`)}
+                    <button onClick={() => navigator.clipboard.writeText(`${window.location.origin}/flow-room/${flow.rooms[0]?.link}`)}
                       className="flex items-center justify-center h-10 rounded bg-blue-100 text-blue-600 hover:bg-blue-200 transition">
                       <Copy size={16} />  
                     </button>
@@ -207,7 +207,6 @@ async function generateLink(
                     </button>
                   </div>
                 </div>
-                
               </div>
             ))}
           </div>
