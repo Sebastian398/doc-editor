@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db'
+import { emitFlowUpdated } from '@/lib/socket-emitter'
 
 export async function DELETE(
   req: Request,
@@ -13,6 +14,7 @@ export async function DELETE(
       id,
     },
   })
+  emitFlowUpdated()
 
   return Response.json({
     success: true,

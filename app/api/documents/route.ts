@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db'
+import { emitDashboardUpdated } from '@/lib/socket-emitter'
 
 export async function POST(req: Request) {
   const { name, fileUrl } = await req.json()
@@ -9,6 +10,8 @@ export async function POST(req: Request) {
       fileUrl,
     },
   })
+  
+  emitDashboardUpdated()
 
   return Response.json(doc)
 }

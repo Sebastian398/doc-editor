@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db'
+import { emitDashboardUpdated, emitFlowUpdated, emitRoomUpdated } from '@/lib/socket-emitter'
 
 export async function POST(req: Request) {
   const { documentId } = await req.json()
@@ -12,7 +13,9 @@ export async function POST(req: Request) {
       link,
     },
   })
-
+  emitDashboardUpdated()
+  emitRoomUpdated()
+  emitFlowUpdated()
   return new Response(JSON.stringify(room))
 }
 

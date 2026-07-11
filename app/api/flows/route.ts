@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db'
+import { emitFlowUpdated } from '@/lib/socket-emitter'
 import crypto from 'crypto'
 
 export async function GET() {
@@ -47,6 +48,6 @@ export async function POST(req: Request) {
       rooms: true,
     },
   })
-
+  emitFlowUpdated()
   return Response.json(flow)
 }

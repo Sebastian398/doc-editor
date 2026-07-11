@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, Copy, Trash2,} from 'lucide-react'
+import { socket } from '@/lib/socket-client'
 
 type FlowType = {
   id: string
@@ -49,7 +50,7 @@ export default function FlowsPage() {
 
     loadFlows();
   }, []);
-
+  
   const filteredFlows = flows.filter(flow =>
     flow.name
       .toLowerCase()

@@ -6,6 +6,8 @@ import dynamic from 'next/dynamic'
 import { Download } from 'lucide-react'
 import { Copy } from 'lucide-react'
 import {FileText, Plus, ExternalLink, Pencil, Trash2,} from 'lucide-react'
+import { socket } from '@/lib/socket-client'
+import { useRef } from 'react'
 
 type DocumentType = {
   id: string
@@ -68,6 +70,79 @@ export default function Home() {
       .then(res => res.json())
       .then(data => setStats(data))
   }, [])
+
+  async function refreshDashboard() {
+
+    const docsRes =
+      await fetch('/api/documents')
+
+    const docsData =
+      await docsRes.json()
+
+    setDocs(docsData)
+
+    const statsRes =
+      await fetch(
+        '/api/dashboard/stats'
+      )
+
+    const statsData =
+      await statsRes.json()
+
+    setStats(statsData)
+  }
+
+  async function refreshOpenedRooms() {
+
+    const openedDocuments =
+      Object.keys(roomsRef.current)
+
+    for (const documentId of openedDocuments) {
+
+      const res = await fetch(`/api/rooms/${documentId}`)
+      const data = await res.json()
+
+      setRooms(prev => ({
+        ...prev,
+        data,
+      }))
+    }
+  }
+
+  const roomsRef = useRef(rooms)
+  useEffect(() => { roomsRef.current = rooms
+
+    const handleDashboardUpdate = async () => {
+      await refreshDashboard()
+      await refreshOpenedRooms()
+    }
+
+    const handleRoomUpdate = async () => {
+      await refreshOpenedRooms()
+    }
+
+    socket.on(
+      'dashboard-updated',
+      handleDashboardUpdate
+    )
+
+    socket.on(
+      'room-updated',
+      handleRoomUpdate
+    )
+
+    return () => {
+      socket.off(
+        'dashboard-updated',
+        handleDashboardUpdate
+      )
+
+      socket.off(
+        'room-updated',
+        handleRoomUpdate
+      )
+    }
+  }, [rooms])
 
   // VER SALAS
   async function loadRooms(documentId: string) {

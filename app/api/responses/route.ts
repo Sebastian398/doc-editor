@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db'
+import { emitDashboardUpdated, emitRoomUpdated, emitFlowUpdated } from '@/lib/socket-emitter'
 
 type ResponseInput = {
   value: string
@@ -17,6 +18,9 @@ export async function POST(req: Request) {
   await prisma.response.createMany({
     data: body.responses,
   })
+  emitDashboardUpdated()
+  emitRoomUpdated()
+  emitFlowUpdated()
 
   return Response.json({ ok: true })
 }

@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db'
+import { emitDashboardUpdated, emitFlowUpdated, emitRoomUpdated } from '@/lib/socket-emitter'
 
 export async function GET(
   req: Request,
@@ -66,6 +67,9 @@ export async function DELETE(
     await prisma.document.delete({
       where: { id },
     })
+    emitDashboardUpdated()
+    emitRoomUpdated()
+    emitFlowUpdated()
 
     return new Response(
       JSON.stringify({ success: true }),
