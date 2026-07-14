@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db'
 import { sha256 } from '@/lib/crypto'
+import { headers } from 'next/headers'
 import { emitDashboardUpdated, emitRoomUpdated, emitFlowUpdated } from '@/lib/socket-emitter'
 
 type ResponseInput = {
@@ -35,6 +36,62 @@ export async function POST(req: Request) {
       signedAt: new Date(),
     },
   })
+
+  const room = await prisma.room.findUnique({
+    where: {
+      id: roomId,
+    },
+  })
+
+  const headersList = await headers()
+
+  const userAgent = headersList.get('user-agent')
+
+  const forwardedFor = headersList.get('x-forwarded-for')
+
+  const ipAddress = forwardedFor ?? 'unknown'
+
+  if (
+    room?.documentHash &&
+    room?.responseHash &&
+    room?.signedAt
+  ) {
+    await prisma.completionCertificate.upsert({
+
+      where: {
+        roomId,
+      },
+
+      update: {
+        documentHash:
+          room.documentHash,
+
+        responseHash:
+          room.responseHash,
+
+        ipAddress,
+
+        userAgent,
+
+        signedAt:
+          room.signedAt,
+      },
+
+      create: {
+        roomId,
+
+        documentHash: room.documentHash,
+
+        responseHash: room.responseHash,
+
+        ipAddress,
+
+        userAgent,
+
+        signedAt: room.signedAt,
+      },
+    })
+  }
   
   emitDashboardUpdated()
   emitRoomUpdated()
