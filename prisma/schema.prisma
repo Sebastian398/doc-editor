@@ -13,65 +13,117 @@ model Document {
   fileUrl   String
   createdAt DateTime @default(now())
   fields    Field[]
-  rooms  Room[]
+  rooms     Room[]
 }
 
 model Field {
-  id         String @id @default(cuid())
-  type       String
-  x          Float
-  y          Float
-  width      Float
-  height     Float
-  xRatio     Float?
-  yRatio     Float?
-  widthRatio Float?
+  id          String     @id @default(cuid())
+  type        String
+  x           Float
+  y           Float
+  width       Float
+  height      Float
+  xRatio      Float?
+  yRatio      Float?
+  widthRatio  Float?
   heightRatio Float?
-  page Int @default(1)
-  pageWidth Float?
-  pageHeight Float?
-  documentId String
-  Document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  responses Response[]
+  page        Int        @default(1)
+  pageWidth   Float?
+  pageHeight  Float?
+  documentId  String
+  Document    Document   @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  responses   Response[]
 }
 
 model Room {
-  id         String   @id @default(cuid())
-  documentId String
-  link       String   @unique
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  responses  Response[]
-  flowItems FlowRoomItem[]
+  id           String                 @id @default(cuid())
+  documentId   String
+  link         String                 @unique
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  document     Document               @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  responses    Response[]
+  flowItems    FlowRoomItem[]
+  documentHash String?
+  responseHash String?
+  signedAt     DateTime?
+  certificate  CompletionCertificate?
 }
+
 model Response {
-  id       String @id @default(cuid())
-  value    String @db.LongText
-  fieldId  String
-  field   Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
-  roomId   String
-  room   Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  id      String @id @default(cuid())
+  value   String @db.LongText
+  fieldId String
+  field   Field  @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  roomId  String
+  room    Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }
+
 model Flow {
-  id        String   @id @default(cuid())
+  id        String         @id @default(cuid())
   name      String
-  createdAt DateTime @default(now())
-  items FlowRoomItem[]
-  rooms FlowRoom[]
+  createdAt DateTime       @default(now())
+  items     FlowRoomItem[]
+  rooms     FlowRoom[]
 }
+
 model FlowRoomItem {
   id     String @id @default(cuid())
   flowId String
   roomId String
-  flow   Flow @relation(fields: [flowId], references: [id], onDelete: Cascade)
-  room   Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  flow   Flow   @relation(fields: [flowId], references: [id], onDelete: Cascade)
+  room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
   @@unique([flowId, roomId])
 }
+
 model FlowRoom {
-  id        String @id @default(cuid())
+  id        String   @id @default(cuid())
   flowId    String
-  link      String @unique
-  flow      Flow @relation(fields: [flowId], references: [id], onDelete: Cascade)
+  link      String   @unique
+  flow      Flow     @relation(fields: [flowId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id        String     @id @default(cuid())
+  name      String
+  email     String     @unique
+  password  String
+  role      UserRole
+  active    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  auditLogs AuditLog[]
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  USER
+}
+
+model CompletionCertificate {
+  id           String   @id @default(cuid())
+  roomId       String   @unique
+  room         Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  documentHash String
+  responseHash String
+  signerName   String?
+  signerEmail  String?
+  ipAddress    String?
+  userAgent    String?  @db.LongText
+  signedAt     DateTime
+  createdAt    DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  entityId  String?
+  details   String?  @db.LongText
   createdAt DateTime @default(now())
 }

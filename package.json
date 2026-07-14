@@ -12,9 +12,11 @@
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "@supabase/supabase-js": "^2.108.2",
+    "bcryptjs": "^3.0.3",
     "fabric": "^7.4.0",
     "lucide-react": "^1.21.0",
     "next": "16.2.9",
+    "next-auth": "^4.24.14",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^5.4.296",
     "prisma": "^5.22.0",
