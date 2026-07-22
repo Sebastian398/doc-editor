@@ -1,6 +1,9 @@
 import { prisma } from '@/lib/db'
 import { sha256 } from '@/lib/crypto'
 import { headers } from 'next/headers'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import { generateSignerToken } from '@/lib/token'
 import { emitDashboardUpdated, emitRoomUpdated, emitFlowUpdated } from '@/lib/socket-emitter'
 
 type ResponseInput = {
@@ -50,7 +53,15 @@ export async function POST(req: Request) {
   const forwardedFor = headersList.get('x-forwarded-for')
 
   const ipAddress = forwardedFor ?? 'unknown'
+  
+  const session = await getServerSession(authOptions)
 
+  const signerName = session?.user?.name ?? null
+
+  const signerEmail = session?.user?.email ?? null
+
+
+  const signerToken = generateSignerToken()
   if (
     room?.documentHash &&
     room?.responseHash &&
@@ -63,26 +74,37 @@ export async function POST(req: Request) {
       },
 
       update: {
-        documentHash:
-          room.documentHash,
-
-        responseHash:
-          room.responseHash,
-
+        signerToken,
+        signerName,
+        signerEmail,
+        documentHash: room.documentHash,
+        responseHash: room.responseHash,
         ipAddress,
-
         userAgent,
-
-        signedAt:
-          room.signedAt,
+        signedAt: room.signedAt,
       },
 
       create: {
         roomId,
-
+        signerToken,
+        signerName,
+        signerEmail,
         documentHash: room.documentHash,
-
         responseHash: room.responseHash,
+        ipAddress,
+        userAgent,
+        signedAt: room.signedAt,
+      },
+    })
+    await prisma.signatureRecord.create({
+      data: {
+        roomId,
+
+        signerToken,
+
+        signerName,
+
+        signerEmail,
 
         ipAddress,
 

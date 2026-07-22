@@ -92,6 +92,27 @@ export default function CertificatePage({
           Certificate Of Completion
 
         </h1>
+        <div className="flex gap-3 mb-6">
+
+          <a
+            href={`/api/certificate.roomId}`}>
+            Descargar PDF
+          </a>
+
+          <a
+            href={`/verify
+            className="
+              bg-green-600
+              text-white
+              px-4
+              py-2
+              rounded
+            "`}
+          >
+            Verificar Certificado
+          </a>
+
+        </div>
 
         <div className="space-y-6">
 
