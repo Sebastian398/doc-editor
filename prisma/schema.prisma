@@ -11,6 +11,8 @@ model Document {
   id        String   @id @default(cuid())
   name      String
   fileUrl   String
+  ownerId   String?
+  owner     User?     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   fields    Field[]
   rooms     Room[]
@@ -64,6 +66,8 @@ model Response {
 model Flow {
   id        String         @id @default(cuid())
   name      String
+  ownerId   String?
+  owner     User?           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt DateTime       @default(now())
   items     FlowRoomItem[]
   rooms     FlowRoom[]
@@ -98,6 +102,8 @@ model User {
   updatedAt      DateTime     @updatedAt
   auditLogs      AuditLog[]
   roomSignatures RoomSigner[]
+  documents      Document[]
+  flows          Flow[]
 }
 
 enum UserRole {
