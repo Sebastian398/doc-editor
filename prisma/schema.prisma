@@ -48,6 +48,7 @@ model Room {
   responseHash String?
   signedAt     DateTime?
   signatures   SignatureRecord[]
+  roomSigners  RoomSigner[]
   certificate  CompletionCertificate?
 }
 
@@ -87,15 +88,16 @@ model FlowRoom {
 }
 
 model User {
-  id        String     @id @default(cuid())
-  name      String
-  email     String     @unique
-  password  String
-  role      UserRole
-  active    Boolean    @default(true)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  auditLogs AuditLog[]
+  id             String       @id @default(cuid())
+  name           String
+  email          String       @unique
+  password       String
+  role           UserRole
+  active         Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  auditLogs      AuditLog[]
+  roomSignatures RoomSigner[]
 }
 
 enum UserRole {
@@ -141,4 +143,17 @@ model SignatureRecord {
   userAgent   String?  @db.LongText
   signedAt    DateTime
   createdAt   DateTime @default(now())
+}
+
+model RoomSigner {
+  id       String    @id @default(cuid())
+  roomId   String
+  userId   String
+  position Int
+  signed   Boolean   @default(false)
+  signedAt DateTime?
+  room     Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, position])
 }
