@@ -56,8 +56,38 @@ export async function POST(
 
 export async function GET() {
 
-  const docs =
-    await prisma.document.findMany()
+  const session =
+    await getServerSession(
+      authOptions
+    )
 
-  return Response.json(docs)
+  if (!session?.user) {
+
+    return Response.json(
+      {
+        error: 'No autorizado',
+      },
+      {
+        status: 401,
+      }
+    )
+  }
+
+  const docs =
+    await prisma.document.findMany({
+
+      where: {
+
+        ownerId:
+          session.user.id,
+      },
+
+      orderBy: {
+        createdAt: 'desc',
+      },
+    })
+
+  return Response.json(
+    docs
+  )
 }
