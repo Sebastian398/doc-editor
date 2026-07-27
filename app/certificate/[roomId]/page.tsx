@@ -254,7 +254,7 @@ export default function CertificatePage({
 
           <div>
             <h2 className="font-bold mb-2">
-              Navegador
+              Agente de usuario
             </h2>
 
             <code className="

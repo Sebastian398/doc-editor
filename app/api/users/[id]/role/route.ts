@@ -6,7 +6,16 @@ from 'next-auth'
 import { authOptions }
 from '@/lib/auth'
 
-export async function GET() {
+export async function PATCH(
+  req: Request,
+  {
+    params,
+  }: {
+    params: Promise<{
+      id: string
+    }>
+  }
+) {
 
   const session =
     await getServerSession(
@@ -27,26 +36,25 @@ export async function GET() {
     )
   }
 
-  const users =
-    await prisma.user.findMany({
+  const { role } =
+    await req.json()
 
-      orderBy: {
-        createdAt: 'desc',
+  const { id } =
+    await params
+
+  const user =
+    await prisma.user.update({
+
+      where: {
+        id,
       },
 
-      select: {
-
-        id: true,
-
-        name: true,
-
-        email: true,
-
-        role: true,
+      data: {
+        role,
       },
     })
 
   return Response.json(
-    users
+    user
   )
 }

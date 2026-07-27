@@ -25,7 +25,7 @@ export async function GET(
   if (!certificate) {
 
     return new Response(
-      'Certificate not found',
+      'Certificado no encontrado',
       {
         status: 404,
       }
@@ -67,14 +67,14 @@ const browser =
     ? 'Microsoft Edge'
     : certificate.userAgent?.includes('Chrome')
     ? 'Google Chrome'
-    : 'Unknown Browser'
+    : 'Navegador desconocido'
 
 /* ===================================
    HEADER
 =================================== */
 
 page.drawText(
-  'CERTIFICATE OF COMPLETION',
+  'CERTIFICADO DE COMPLETADO',
   {
     x: 50,
     y,
@@ -84,7 +84,7 @@ page.drawText(
 )
 
 page.drawText(
-  'SIGNED',
+  'FIRMADO',
   {
     x: 470,
     y: 792,
@@ -97,7 +97,7 @@ page.drawText(
 y -= 26
 
 page.drawText(
-  'Digital Document Verification Certificate',
+  'Certificado de verificación de documento digital',
   {
     x: 50,
     y,
@@ -122,24 +122,24 @@ y -= 25
    GENERAL INFO
 =================================== */
 
-draw('GENERAL INFORMATION', 14)
+draw('INFORMACION GENERAL', 14)
 
 draw(
-  `Certificate ID: ${certificate.id}`
+  `ID de Certificado: ${certificate.id}`
 )
 
 draw(
-  `Document: ${certificate.room.document.name}`
+  `Documento: ${certificate.room.document.name}`
 )
 
 draw(
-  `Generated: ${new Date(
+  `Generado: ${new Date(
     certificate.createdAt
   ).toLocaleString('es-CO')}`
 )
 
 draw(
-  `Signed: ${new Date(
+  `Firmado: ${new Date(
     certificate.signedAt
   ).toLocaleString('es-CO')}`
 )
@@ -150,19 +150,19 @@ y -= 10
    SIGNER
 =================================== */
 
-draw('SIGNER INFORMATION', 14)
+draw('INFORMACION FIRMANTE', 14)
 
 draw(
-  `Signer: ${
+  `Firmante: ${
     certificate.signerName ??
-    'Anonymous Signer'
+    'Firmante anónimo'
   }`
 )
 
 draw(
-  `Email: ${
+  `Correo: ${
     certificate.signerEmail ??
-    'Not Available'
+    'No disponible'
   }`
 )
 
@@ -172,14 +172,14 @@ y -= 10
    AUTHENTICATION
 =================================== */
 
-draw('AUTHENTICATION EVIDENCE', 14)
+draw('EVIDENCIA DE AUTENTICACION', 14)
 
 draw(
-  `IP Address: ${certificate.ipAddress}`
+  `Dirección IP: ${certificate.ipAddress}`
 )
 
 draw(
-  `Browser: ${browser}`
+  `Navegador: ${browser}`
 )
 
 y -= 10
@@ -188,7 +188,7 @@ y -= 10
    STATUS
 =================================== */
 
-draw('DOCUMENT STATUS', 14)
+draw('ESTADO DE DOCUMENTO', 14)
 
 page.drawRectangle({
   x: 50,
@@ -199,7 +199,7 @@ page.drawRectangle({
 })
 
 page.drawText(
-  'VALID',
+  'VALIDO',
   {
     x: 88,
     y,
@@ -215,19 +215,19 @@ y -= 35
    HASHES
 =================================== */
 
-draw('DOCUMENT INTEGRITY', 14)
+draw('INTEGRIDAD DE DOCUMENTO', 14)
 
 draw(
-  `Document SHA-256: ${certificate.documentHash.slice(
+  `SHA-256 del documento : ${certificate.documentHash.slice(
     0,
-    32
+    35
   )}...`
 )
 
 draw(
-  `Response SHA-256: ${certificate.responseHash.slice(
+  `SHA-256 de la respuesta: ${certificate.responseHash.slice(
     0,
-    32
+    35
   )}...`
 )
 
@@ -237,24 +237,13 @@ y -= 10
    VERIFICATION
 =================================== */
 
-draw('CERTIFICATE VERIFICATION', 14)
+draw('VERIFICACION DE CERTIFICADO ', 14)
 
-draw(
-  `Certificate ID: ${certificate.id}`
-)
+draw(`ID del certificado: ${certificate.id}`)
 
-draw(
-  `Verification Status: VALID`
-)
+draw(`Estado de verificación: VALIDO`)
 
-draw(
-  `Verification Endpoint:`
-)
-
-draw(
-  `/verify/${certificate.roomId}`,
-  10
-)
+draw(`Endpoint de verificación: /verify/${certificate.roomId}`)
 
 y -= 15
 
@@ -262,29 +251,29 @@ y -= 15
    LEGAL
 =================================== */
 
-draw('LEGAL NOTICE', 14)
+draw('AVISO LEGAL', 14)
 
 const legalText = [
 
-  'This certificate confirms that the',
+  'Este certificado confirma que el',
 
-  'document was completed and recorded',
+  'documento fue completado y guardado',
 
-  'within the platform.',
+  'dentro de la plataforma.',
 
   '',
 
-  'Document integrity is protected',
+  'La integridad del documento está protegida',
 
   'through SHA-256 cryptographic hashes.',
 
   '',
 
-  'Any modification to the document',
+  'Cualquier modificación al documento',
 
-  'or submitted responses will invalidate',
+  'o submitted responses serán invalidas',
 
-  'verification.'
+  'verificación.'
 ]
 
 for (const line of legalText) {
@@ -303,7 +292,7 @@ page.drawLine({
 y -= 18
 
 page.drawText(
-  `Generated automatically by Doc-Editor`,
+  `Generado automáticamente por Doc-Editor`,
   {
     x: 50,
     y,
