@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 type User = {
   id: string
@@ -10,25 +12,25 @@ type User = {
 }
 
 export default function AdminUsersPage() {
+    
+    const { data: session, status } = useSession()
 
-  const [users, setUsers] =
-    useState<User[]>([])
+    const router = useRouter() 
 
-  const [loading, setLoading] =
-    useState(true)
+    const [users, setUsers] = useState<User[]>([])
 
-  async function loadUsers() {
+    const [loading, setLoading] = useState(true)
 
-    const res =
-      await fetch('/api/users')
+    async function loadUsers() {
 
-    const data =
-      await res.json()
+        const res = await fetch('/api/users')
 
-    setUsers(data)
+        const data = await res.json()
 
-    setLoading(false)
-  }
+        setUsers(data)
+
+        setLoading(false)
+    }
 
   useEffect(() => {
     loadUsers()
@@ -57,13 +59,40 @@ export default function AdminUsersPage() {
   }
 
   if (loading) {
-
     return (
-      <div className="
-        p-10
-        text-center
-      ">
-        Cargando usuarios...
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 flex-col">
+        <p className="text-gray-600 mb-3 font-medium">
+          Cargando
+        </p>
+
+        <div className="flex gap-2">
+          {[0, 1, 2].map((i) => (
+            <span
+              key={i}
+              className="w-3 h-3 bg-blue-500 rounded-full"
+              style={{
+                animation: 'loadingDots 1.2s infinite',
+                animationDelay: `${i * 0.2}s`,
+              }}
+            />
+          ))}
+        </div>
+
+        <style jsx>{`
+          @keyframes loadingDots {
+            0%,
+            80%,
+            100% {
+              transform: scale(0.6);
+              opacity: 0.4;
+            }
+
+            40% {
+              transform: scale(1.2);
+              opacity: 1;
+            }
+          }
+        `}</style>
       </div>
     )
   }
