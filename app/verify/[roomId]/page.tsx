@@ -59,8 +59,39 @@ export default function VerifyPage({
 
   if (loading) {
     return (
-      <div className="p-10">
-        Verificando certificado...
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 flex-col">
+        <p className="text-gray-600 mb-3 font-medium">
+          Verificando documento...
+        </p>
+
+        <div className="flex gap-2">
+          {[0, 1, 2].map((i) => (
+            <span
+              key={i}
+              className="w-3 h-3 bg-blue-500 rounded-full"
+              style={{
+                animation: 'loadingDots 1.2s infinite',
+                animationDelay: `${i * 0.2}s`,
+              }}
+            />
+          ))}
+        </div>
+
+        <style jsx>{`
+          @keyframes loadingDots {
+            0%,
+            80%,
+            100% {
+              transform: scale(0.6);
+              opacity: 0.4;
+            }
+
+            40% {
+              transform: scale(1.2);
+              opacity: 1;
+            }
+          }
+        `}</style>
       </div>
     )
   }

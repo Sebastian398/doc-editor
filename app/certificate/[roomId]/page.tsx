@@ -67,8 +67,39 @@ export default function CertificatePage({
 
   if (loading) {
     return (
-      <div className="p-10">
-        Cargando certificado...
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 flex-col">
+        <p className="text-gray-600 mb-3 font-medium">
+          Cargando certificado...
+        </p>
+
+        <div className="flex gap-2">
+          {[0, 1, 2].map((i) => (
+            <span
+              key={i}
+              className="w-3 h-3 bg-blue-500 rounded-full"
+              style={{
+                animation: 'loadingDots 1.2s infinite',
+                animationDelay: `${i * 0.2}s`,
+              }}
+            />
+          ))}
+        </div>
+
+        <style jsx>{`
+          @keyframes loadingDots {
+            0%,
+            80%,
+            100% {
+              transform: scale(0.6);
+              opacity: 0.4;
+            }
+
+            40% {
+              transform: scale(1.2);
+              opacity: 1;
+            }
+          }
+        `}</style>
       </div>
     )
   }
@@ -89,25 +120,36 @@ export default function CertificatePage({
 
         <h1 className="text-4xl font-bold text-center mb-8">
 
-          Certificate Of Completion
+          Certificado de completado
 
         </h1>
-        <div className="flex gap-3 mb-6">
+        <div className="flex gap-4 mb-8">
 
           <a
-            href={`/api/certificate.roomId}`}>
+            href={`/api/certificate-pdf/${certificate.roomId}`} 
+            className="
+            bg-blue-400 
+            hover:bg-blue-500 
+            text-white 
+            font-medium 
+            px-4  
+            py-3 
+            rounded-lg 
+            transition">
             Descargar PDF
           </a>
 
           <a
-            href={`/verify
-            className="
-              bg-green-600
+            href={`/verify/${certificate.roomId}
+            `}className="
+              bg-green-400
+              hover:bg-green-500
               text-white
+              font-medium
               px-4
-              py-2
-              rounded
-            "`}
+              py-3
+              rounded-lg
+            "
           >
             Verificar Certificado
           </a>
@@ -138,7 +180,7 @@ export default function CertificatePage({
 
           <div>
             <h2 className="font-bold">
-              Signed At
+              Firmado
             </h2>
 
             <p>
@@ -152,7 +194,7 @@ export default function CertificatePage({
 
           <div>
             <h2 className="font-bold">
-              IP Address
+              Dirección IP
             </h2>
 
             <p>
@@ -162,7 +204,7 @@ export default function CertificatePage({
 
           <div>
             <h2 className="font-bold">
-              Status
+              Estado
             </h2>
 
             <span className="
@@ -178,7 +220,7 @@ export default function CertificatePage({
 
           <div>
             <h2 className="font-bold mb-2">
-              Document Hash
+              Hash del documento
             </h2>
 
             <code className="
@@ -195,7 +237,7 @@ export default function CertificatePage({
 
           <div>
             <h2 className="font-bold mb-2">
-              Response Hash
+              Hash de respuesta
             </h2>
 
             <code className="
@@ -212,7 +254,7 @@ export default function CertificatePage({
 
           <div>
             <h2 className="font-bold mb-2">
-              User Agent
+              Navegador
             </h2>
 
             <code className="
