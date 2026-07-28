@@ -40,6 +40,7 @@ const MiniPDFViewer = dynamic(() => import('@/components/PDFViewer'), {
 })
 
 export default function Home() {
+  const {data: session} = useSession()
   const [docs, setDocs] = useState<DocumentType[]>([])
   const [rooms, setRooms] = useState<Record<string, RoomType[]>>({})
   const [roomsLoading, setRoomsLoading] = useState<Record<string, boolean>>({})
@@ -252,7 +253,7 @@ export default function Home() {
           <div className="flex items-center justify-between gap-6">
             <div className="shrink-0">
               <h1 className="text-2xl font-bold text-gray-800">
-                Gestor Documental
+                Bienvenido {session?.user?.name}
               </h1>
             </div>
           
