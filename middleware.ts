@@ -31,13 +31,17 @@ export default withAuth(
     // MANAGER + ADMIN
     if (
 
+      path === '/' ||
+
       path.startsWith('/documents') ||
 
       path.startsWith('/flows') ||
 
       path.startsWith('/dashboard') ||
 
-      path.startsWith('/editor')
+      path.startsWith('/editor') ||
+
+      path.startsWith('/upload')
 
     ) {
 
@@ -76,6 +80,8 @@ export const config = {
 
   matcher: [
 
+    '/',
+
     '/admin/:path*',
 
     '/documents/:path*',
@@ -85,6 +91,8 @@ export const config = {
     '/dashboard/:path*',
 
     '/editor/:path*',
+
+    '/upload/:path*',
 
   ],
 

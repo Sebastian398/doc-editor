@@ -76,7 +76,6 @@ export const authOptions: AuthOptions = {
   ],
 
   callbacks: {
-
     async jwt({
       token,
       user,
@@ -88,11 +87,7 @@ export const authOptions: AuthOptions = {
           user.id
 
         token.role =
-        (
-            user as unknown as {
-            role: string
-            }
-        ).role
+          user.role
       }
 
       return token
@@ -103,23 +98,13 @@ export const authOptions: AuthOptions = {
       token,
     }) {
 
-      if (session.user) {
+      session.user.id =
+        token.id
 
-        ;(session.user as {
-            id: string
-            role: string
-        }).id = token.id as string
-
-        ;(session.user as {
-            id: string
-            role: string
-        }).role = token.role as string
-      }
+      session.user.role =
+        token.role
 
       return session
     },
-  },
-
-  secret:
-    process.env.NEXTAUTH_SECRET,
+  }
 }
