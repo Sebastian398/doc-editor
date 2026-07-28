@@ -7,6 +7,7 @@ import { Download } from 'lucide-react'
 import { Copy } from 'lucide-react'
 import {FileText, Plus, ExternalLink, Pencil, Trash2,} from 'lucide-react'
 import { socket } from '@/lib/socket-client'
+import {useSession, signOut,} from 'next-auth/react'
 import { useRef } from 'react'
 
 type DocumentType = {
@@ -251,7 +252,7 @@ export default function Home() {
           <div className="flex items-center justify-between gap-6">
             <div className="shrink-0">
               <h1 className="text-2xl font-bold text-gray-800">
-                Gestor de Documentos
+                Gestor Documental
               </h1>
             </div>
           
@@ -289,6 +290,30 @@ export default function Home() {
             >
               Flows
             </Link>
+            <button
+
+              onClick={() =>
+                signOut({
+                  callbackUrl:'/login',
+                })
+              }
+
+              className="
+                flex
+                items-center
+                gap-2
+                bg-red-500
+                text-white
+                px-4
+                py-2
+                rounded-lg
+                hover:bg-red-600
+                transition
+                shadow
+              "
+            >
+              Cerrar sesión
+            </button>
           </div>
           </div>  
         </div>
