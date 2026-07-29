@@ -8,6 +8,7 @@ import { Copy } from 'lucide-react'
 import {FileText, Plus, ExternalLink, Pencil, Trash2,} from 'lucide-react'
 import { socket } from '@/lib/socket-client'
 import {useSession, signOut,} from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { useRef } from 'react'
 
 type DocumentType = {
@@ -40,7 +41,8 @@ const MiniPDFViewer = dynamic(() => import('@/components/PDFViewer'), {
 })
 
 export default function Home() {
-  const {data: session} = useSession()
+  const {data: session, status} = useSession()
+  const router = useRouter()
   const [docs, setDocs] = useState<DocumentType[]>([])
   const [rooms, setRooms] = useState<Record<string, RoomType[]>>({})
   const [roomsLoading, setRoomsLoading] = useState<Record<string, boolean>>({})
@@ -72,6 +74,24 @@ export default function Home() {
       .then(res => res.json())
       .then(data => setStats(data))
   }, [])
+  useEffect(() => {
+
+  if (status === 'loading') {
+    return
+  }
+
+  if (!session) {
+
+    router.push('/login')
+
+    return
+  }
+
+}, [
+  session,
+  status,
+  router,
+])
 
   async function refreshDashboard() {
 

@@ -5,12 +5,14 @@ export default withAuth(
 
   function middleware(req) {
 
-    const role = req.nextauth.token?.role
+    const role =
+      req.nextauth.token?.role
 
     const path =
       req.nextUrl.pathname
 
-    // ADMIN
+    // SOLO ADMIN
+
     if (
       path.startsWith('/admin')
     ) {
@@ -28,20 +30,31 @@ export default withAuth(
       }
     }
 
-    // MANAGER + ADMIN
+    // SOLO ADMIN Y MANAGER
+
     if (
 
       path === '/' ||
 
-      path.startsWith('/documents') ||
+      path.startsWith(
+        '/documents'
+      ) ||
 
-      path.startsWith('/flows') ||
+      path.startsWith(
+        '/flows'
+      ) ||
 
-      path.startsWith('/dashboard') ||
+      path.startsWith(
+        '/dashboard'
+      ) ||
 
-      path.startsWith('/editor') ||
+      path.startsWith(
+        '/editor'
+      ) ||
 
-      path.startsWith('/upload')
+      path.startsWith(
+        '/upload'
+      )
 
     ) {
 
@@ -65,6 +78,7 @@ export default withAuth(
   },
 
   {
+
     callbacks: {
 
       authorized: ({
@@ -72,6 +86,10 @@ export default withAuth(
       }) => !!token,
 
     },
+    pages: {
+      signIn: '/login',
+    },
+
   }
 
 )
