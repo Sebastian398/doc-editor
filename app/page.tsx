@@ -305,7 +305,23 @@ export default function Home() {
               <Plus size={16} />
               Subir documento
             </Link>
-
+            {session?.user?.role === 'ADMIN' && (
+              <Link
+                href="/admin/users"
+                className="
+                  flex
+                  items-center
+                  gap-2
+                  px-5
+                  py-2.5
+                  rounded-xl
+                  bg-purple-600
+                  text-white
+                  font-medium
+                  shadow-sm
+                  hover:bg-purple">Usuarios
+              </Link>
+            )}
             <Link href="/flows"
               className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition shadow"
             >
