@@ -198,20 +198,52 @@ export default function Home() {
 
   // ELIMINAR
   async function handleDelete(id: string) {
-    const result = await Swal.fire({
-      title: '¿Eliminar documento?',
-      text: 'Esta acción no se puede deshacer.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#f05555',
-      cancelButtonColor: '#98a0b1',
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
+
+  const result = await Swal.fire({
+    title: '¿Eliminar documento?',
+    text: 'Esta acción no se puede deshacer.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#f05555',
+    cancelButtonColor: '#98a0b1',
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+  })
+
+  if (!result.isConfirmed) return
+
+  try {
+
+    const res = await fetch(`/api/documents/${id}`, {
+      method: 'DELETE',
     })
 
-if (!result.isConfirmed) return
+    if (!res.ok) {
+      throw new Error()
+    }
+
+    setDocs(prev =>
+      prev.filter(doc => doc.id !== id)
+    )
+
+    await Swal.fire({
+      title: 'Documento eliminado',
+      text: 'El documento fue eliminado correctamente.',
+      icon: 'success',
+      timer: 1500,
+      showConfirmButton: false,
+    })
+
+  } catch {
+
+    await Swal.fire({
+      title: 'Error',
+      text: 'No fue posible eliminar el documento.',
+      icon: 'error',
+    })
 
   }
+}
   async function handleDeleteRoom(documentId: string, roomId: string) {
     const confirmDelete = confirm('¿Eliminar esta sala?')
 
