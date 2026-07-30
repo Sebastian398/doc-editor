@@ -203,8 +203,9 @@ export default function Home() {
     title: '¿Eliminar documento?',
     text: 'Esta acción no se puede deshacer.',
     icon: 'warning',
+    iconColor: '#5284f1',
     showCancelButton: true,
-    confirmButtonColor: '#f05555',
+    confirmButtonColor: '#ef4444',
     cancelButtonColor: '#98a0b1',
     confirmButtonText: 'Sí, eliminar',
     cancelButtonText: 'Cancelar',
@@ -245,9 +246,18 @@ export default function Home() {
   }
 }
   async function handleDeleteRoom(documentId: string, roomId: string) {
-    const confirmDelete = confirm('¿Eliminar esta sala?')
-
-    if (!confirmDelete) return
+    const result = await Swal.fire({
+      title: '¿Eliminar sala?',
+      text: 'La sala y sus respuestas serán eliminadas.',
+      icon: 'warning',
+      iconColor: '#5284f1',
+      showCancelButton: true,
+      confirmButtonText: 'Eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#98a0b1',
+    }) 
+    if (!result.isConfirmed) return
 
     try {
       const res = await fetch(`/api/room/${roomId}`, {
@@ -261,20 +271,24 @@ export default function Home() {
       // actualizar estado correctamente
       setRooms(prev => ({
         ...prev,
-        [documentId]: prev[documentId].filter(r => r.id !== roomId),
+        [documentId]: prev[documentId].filter(
+          r => r.id !== roomId
+        ),
       }))
 
-      setMessage({
-        type: 'success',
-        text: 'Sala eliminada',
+      await Swal.fire({
+        title: 'Sala eliminada',
+        text: 'La sala fue eliminada correctamente.',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false,
       })
 
-      setTimeout(() => setMessage(null), 2000)
-
     } catch {
-      setMessage({
-        type: 'error',
-        text: 'Error eliminando sala',
+      await Swal.fire({
+        title: 'Error',
+        text: 'Error eliminando la sala',
+        icon: 'error',
       })
     }
   }
@@ -603,9 +617,13 @@ export default function Home() {
                               `${window.location.origin}/room/${room.link}`
                             )
 
-                            setMessage({
-                              type: 'success',
-                              text: 'Link copiado ✅',
+                            Swal.fire({
+                              toast: true,
+                              position: 'top-end',
+                              icon: 'success',
+                              title: 'Link copiado',
+                              showConfirmButton: false,
+                              timer: 1500,
                             })
                           }}
                           className="flex items-center justify-center h-10 rounded bg-blue-100 text-blue-600 hover:bg-blue-200 transition"
@@ -638,14 +656,25 @@ export default function Home() {
                               a.download = `${doc.name}-firmado.pdf`
 
                               a.click()
-
+                              Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: 'PDF descargado',
+                                timer: 1500,
+                                showConfirmButton: false,
+                              })
                               URL.revokeObjectURL(url)
                             } catch (error) {
                               console.error(error)
 
-                              setMessage({
-                                type: 'error',
-                                text: 'Error descargando PDF',
+                              Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'error',
+                                title: 'Error descargando PDF',
+                                timer: 2500,
+                                showConfirmButton: false,
                               })
                             }
                           }}
