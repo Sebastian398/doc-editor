@@ -2,9 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-
-import { signIn }
-  from 'next-auth/react'
+import { signIn } from 'next-auth/react'
+import Swal from 'sweetalert2'
 
 export default function LoginPage() {
 
@@ -27,6 +26,18 @@ export default function LoginPage() {
   ) {
 
     e.preventDefault()
+    if (!email.trim() || !password.trim()) {
+
+      await Swal.fire({
+        icon: 'warning',
+        iconColor: '#f59e0b',
+        title: 'Campos incompletos',
+        text: 'Debes ingresar correo y contraseña.',
+        confirmButtonColor: '#3b82f6',
+      })
+
+      return
+    }
 
     setLoading(true)
 
@@ -44,9 +55,13 @@ export default function LoginPage() {
 
     if (result?.error) {
 
-      alert(
-        'Credenciales incorrectas'
-      )
+      await Swal.fire({
+        icon: 'error',
+        iconColor: '#ef4444',
+        title: 'Acceso denegado',
+        text: 'Correo o contraseña incorrectos.',
+        confirmButtonColor: '#3b82f6',
+      })
 
       return
     }
@@ -123,13 +138,18 @@ export default function LoginPage() {
           "
         />
 
+        
         <button
+          disabled={loading}
           className="
             bg-blue-500
             text-white
             p-3
             rounded
             w-full
+            transition
+            disabled:bg-gray-400
+            disabled:cursor-not-allowed
           "
         >
           {

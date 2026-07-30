@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Swal from 'sweetalert2'
 
 export default function RegisterPage() {
 
@@ -25,6 +26,21 @@ export default function RegisterPage() {
   ) {
 
     e.preventDefault()
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{6,}$/
+
+    if (!passwordRegex.test(password)) {
+
+      Swal.fire({
+        icon: 'warning',
+        iconColor: '#f59e0b',
+        title: 'Contraseña inválida',
+        text: 'Debe tener mínimo 6 caracteres, una mayúscula y un carácter especial.',
+        confirmButtonColor: '#3b82f6',
+      })
+
+      return
+    }
 
     setLoading(true)
 
@@ -52,16 +68,25 @@ export default function RegisterPage() {
 
     if (!res.ok) {
 
-      alert(
-        data.error
-      )
+      await Swal.fire({
+        icon: 'error',
+        iconColor: '#ef4444',
+        title: 'Error',
+        text: data.error,
+        confirmButtonColor: '#3b82f6',
+      })
 
       return
     }
 
-    alert(
-      'Usuario creado correctamente'
-    )
+    await Swal.fire({
+      icon: 'success',
+      iconColor: '#22c55e',
+      title: 'Usuario creado',
+      text: 'La cuenta fue creada correctamente.',
+      timer: 1800,
+      showConfirmButton: false,
+    })
 
     router.push('/login')
   }
@@ -149,10 +174,12 @@ export default function RegisterPage() {
             w-full
             p-3
             rounded
-            mb-6
             text-gray-600
           "
         />
+        <p className="text-xs text-gray-500 mb-5">
+          Mínimo 6 caracteres, una mayúscula y un carácter especial.
+        </p>
 
         <button
           type="submit"

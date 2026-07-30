@@ -133,8 +133,9 @@ export default function Home() {
   }
 
   const roomsRef = useRef(rooms)
-  useEffect(() => { roomsRef.current = rooms
+  useEffect(() => { roomsRef.current = rooms }, [rooms])
 
+  useEffect(() => {
     const handleDashboardUpdate = async () => {
       await refreshDashboard()
       await refreshOpenedRooms()
@@ -165,7 +166,7 @@ export default function Home() {
         handleRoomUpdate
       )
     }
-  }, [rooms])
+  }, [])
 
   // VER SALAS
   async function loadRooms(documentId: string) {

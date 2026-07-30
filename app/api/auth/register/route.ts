@@ -12,10 +12,77 @@ export async function POST(req: Request) {
   } = body
 
   if (!name || !email || !password) {
-
+    
     return Response.json(
       {
         error: 'Todos los campos son obligatorios'
+      },
+      {
+        status: 400
+      }
+    )
+  }
+  
+  if (name.trim().length < 3) {
+    return Response.json(
+      {
+        error:
+          'El nombre debe tener mínimo 3 caracteres'
+      },
+      {
+        status: 400
+      }
+    )
+  }
+
+  if (name.length > 100) {
+    return Response.json(
+      {
+        error:
+          'Nombre demasiado largo'
+      },
+      {
+        status: 400
+      }
+    )
+  }
+
+  const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/
+
+  if (!nameRegex.test(name.trim())) {
+    return Response.json(
+      {
+        error:
+          'El nombre solo puede contener letras'
+      },
+      {
+        status: 400
+      }
+    )
+  }
+    
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  if (!emailRegex.test(email)) {
+
+    return Response.json(
+      {
+        error: 'Correo electrónico inválido'
+      },
+      {
+        status: 400
+      }
+    )
+  }
+    
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{6,}$/
+
+  if (!passwordRegex.test(password)) {
+
+    return Response.json(
+      {
+        error:
+          'La contraseña debe tener mínimo 6 caracteres, una mayúscula y un carácter especial'
       },
       {
         status: 400
@@ -42,20 +109,20 @@ export async function POST(req: Request) {
     )
   }
 
-  const hashedPassword =
-    await bcrypt.hash(password, 10)
+  const normalizedEmail = email.trim().toLowerCase()
+
+  const hashedPassword = await bcrypt.hash(password, 10)
 
   const user =
     await prisma.user.create({
 
       data: {
 
-        name,
+        name: name.trim(),
 
-        email,
+        email: normalizedEmail,
 
-        password:
-          hashedPassword,
+        password: hashedPassword,
 
         role: 'USER',
       },

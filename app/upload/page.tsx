@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Upload, FileText, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
+import Swal from 'sweetalert2'
 
 // PDF Viewer dinámico
 const PDFViewer = dynamic(() => import('@/components/PDFViewer'), {
@@ -15,6 +16,14 @@ export default function UploadPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 2500,
+    timerProgressBar: true,
+  })
+
 
   // VALIDAR PDF
   function validateFile(selectedFile: File) {
@@ -63,15 +72,22 @@ export default function UploadPage() {
       })
 
       if (!saveRes.ok) throw new Error()
-
-      alert('Documento subido correctamente ✅')
+      toast.fire({
+        icon: 'success',
+        title: 'Documento subido correctamente',
+      })
 
       // limpiar estado
       setFile(null)
       setPreviewUrl(null)
+      setError(null)
 
     } catch {
-      alert('Error subiendo documento ❌')
+      toast.fire({
+        icon: 'error',
+        iconColor: '#ef4444',
+        title: 'Error subiendo documento',
+      })
     } finally {
       setLoading(false)
     }
