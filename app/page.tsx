@@ -10,6 +10,7 @@ import { socket } from '@/lib/socket-client'
 import {useSession, signOut,} from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useRef } from 'react'
+import Swal from 'sweetalert2'
 
 type DocumentType = {
   id: string
@@ -197,37 +198,19 @@ export default function Home() {
 
   // ELIMINAR
   async function handleDelete(id: string) {
-    const confirmDelete = confirm('¿Seguro que quieres eliminar este documento?')
-    if (!confirmDelete) return
+    const result = await Swal.fire({
+      title: '¿Eliminar documento?',
+      text: 'Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#f05555',
+      cancelButtonColor: '#98a0b1',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+    })
 
-    try {
-      const res = await fetch(`/api/documents/${id}`, {
-        method: 'DELETE',
-      })
+if (!result.isConfirmed) return
 
-      if (!res.ok) {
-        setMessage({
-          type: 'error',
-          text: 'Error al eliminar documento ❌',
-        })
-        return
-      }
-
-      setDocs(prev => prev.filter(doc => doc.id !== id))
-
-      setMessage({
-        type: 'success',
-        text: 'Documento eliminado correctamente',
-      })
-
-      setTimeout(() => setMessage(null), 3000)
-
-    } catch {
-      setMessage({
-        type: 'error',
-        text: 'Error de conexión ❌',
-      })
-    }
   }
   async function handleDeleteRoom(documentId: string, roomId: string) {
     const confirmDelete = confirm('¿Eliminar esta sala?')
@@ -270,7 +253,7 @@ export default function Home() {
       {/* HEADER */}
       <header className="bg-white border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between gap-6">
+          <div className="grid grid-cols-[250px_1fr_auto] items-center gap-6">
             <div className="shrink-0">
               <h1 className="text-2xl font-bold text-gray-800">
                 Bienvenido {session?.user?.name}
@@ -287,7 +270,8 @@ export default function Home() {
                 w-full
                 bg-gray-50
                 border
-                rounded-lg
+                border-gray-200
+                rounded-xl
                 px-4
                 py-2
                 text-black
@@ -300,7 +284,7 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <Link
               href="/upload"
-              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500 border border-blue-400 text-white font-medium rounded-xl hover:bg-blue-300 hover:shadow-md shadow-sm"
             >
               <Plus size={16} />
               Subir documento
@@ -312,18 +296,22 @@ export default function Home() {
                   flex
                   items-center
                   gap-2
-                  px-5
-                  py-2.5
+                  px-4
+                  py-2
                   rounded-xl
-                  bg-purple-600
+                  bg-purple-500
+                  border
+                  border-purple-400
+                  hover:bg-purple-300
                   text-white
                   font-medium
                   shadow-sm
-                  hover:bg-purple">Usuarios
+                  hover:shadow-md
+                  ">Usuarios
               </Link>
             )}
             <Link href="/flows"
-              className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition shadow"
+              className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-xl hover:bg-green-300 border border-green-400 shadow-sm hover:shadow-md"
             >
               Flows
             </Link>
@@ -343,10 +331,12 @@ export default function Home() {
                 text-white
                 px-4
                 py-2
-                rounded-lg
-                hover:bg-red-600
-                transition
-                shadow
+                rounded-xl
+                hover:bg-red-300
+                border
+                border-red-400
+                shadow-sm
+                hover:shadow-md
               "
             >
               Cerrar sesión
@@ -422,6 +412,37 @@ export default function Home() {
         {/* LOADING */}
         {loading && (
           <p className="text-gray-500">Cargando documentos...</p>
+        )}
+
+        {/* ESTADO VACÍO */}
+        {!loading && docs.length === 0 && (
+          <div
+            className="
+              bg-white
+              rounded-2xl
+              shadow-sm
+              border
+              border-gray-200
+              p-12
+              text-center
+              mb-6
+            "
+          >
+            <div className="text-6xl mb-4">
+              📄
+            </div>
+
+            <h2 className="text-2xl font-bold text-gray-800 mb-3">
+              ¡Bienvenido a Doc-Editor!
+            </h2>
+
+            <p className="text-gray-500 max-w-lg mx-auto">
+              Todavía no tienes documentos registrados.
+              Carga tu primer documento y comienza a crear
+              salas de firma, gestionar procesos y hacer
+              seguimiento a tus documentos.
+            </p>
+          </div>
         )}
 
         {!loading && (
