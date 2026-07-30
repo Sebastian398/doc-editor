@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import * as fabric from 'fabric'
+import Swal from 'sweetalert2'
 import type { TPointerEventInfo, TPointerEvent } from 'fabric'
 
 type FieldFromDB = {
@@ -38,6 +39,14 @@ type Props = {
 
   onReady: (saveFn: () => void) => void
 }
+
+const toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 2000,
+  timerProgressBar: true,
+})
 
 export default function CanvasEditor({
   documentId,
@@ -240,7 +249,11 @@ export default function CanvasEditor({
     })
 
     if (showAlert) {
-      alert('Campos guardados ✅')
+      toast.fire({
+        icon: 'success',
+        iconColor: '#22c55e',
+        title: 'Campos guardados correctamente',
+      })
     }
   }
 

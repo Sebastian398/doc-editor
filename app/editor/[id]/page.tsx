@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic'
 import { Plus, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import Toolbar from '@/components/toolbar'
+import Swal from 'sweetalert2'
 
 const PDFViewer = dynamic(() => import('@/components/PDFViewer'), {
   ssr: false,
@@ -52,19 +53,51 @@ export default function EditorPage({
   }, [params])
 
   async function createRoom(docId: string) {
-    const res = await fetch('/api/rooms', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ documentId: docId }),
-    })
 
-    const data = await res.json()
+    try {
 
-    navigator.clipboard.writeText(
-      `${window.location.origin}/room/${data.link}`
-    )
+      const res = await fetch('/api/rooms', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          documentId: docId,
+        }),
+      })
 
-    alert('Enlace copiado')
+      if (!res.ok) {
+        throw new Error()
+      }
+
+      const data = await res.json()
+
+      navigator.clipboard.writeText(
+        `${window.location.origin}/room/${data.link}`
+      )
+
+      await Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        iconColor: '#22c55e',
+        title: 'Sala creada y enlace copiado',
+        timer: 2000,
+        showConfirmButton: false,
+      })
+
+    } catch {
+
+      await Swal.fire({
+        icon: 'error',
+        iconColor: '#ef4444',
+        title: 'Error',
+        text: 'No fue posible crear la sala.',
+        confirmButtonColor: '#3b82f6',
+      })
+
+    }
+
   }
 
   if (!doc) {
