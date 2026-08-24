@@ -581,7 +581,7 @@ export default function Home() {
                       )}
 
                       {room.status === 'pending' && (
-                        <span className="px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
+                        <span className="px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 text-yellow-600">
                           Pendiente
                         </span>
                       )}

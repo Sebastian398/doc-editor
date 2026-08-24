@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import SignatureModal from '@/components/SignatureModal'
 import { ArrowLeft } from 'lucide-react'
+import Swal from 'sweetalert2'
 import Link from 'next/link'
 
 const PDFViewer = dynamic(() => import('@/components/PDFViewer'), {
@@ -148,14 +149,34 @@ export default function RoomPage({
       })
     )
 
-    await fetch('/api/responses', {
+    try {
+    const res = await fetch('/api/responses', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ responses }),
     })
 
-    alert('Datos guardados ✅')
+    if (!res.ok) {
+      throw new Error()
+    }
+
+    await Swal.fire({
+      icon: 'success',
+      iconColor: '#22c55e',
+      title: 'Documento enviado',
+      text: 'La información se guardó correctamente.',
+      confirmButtonColor: '#3b82f6',
+    })
+  } catch {
+    await Swal.fire({
+      icon: 'success',
+      iconColor: '#ef4444',
+      title: 'Error',
+      text: 'No fue posible guardar la información.',
+      confirmButtonColor: '#3b82f6',
+    })
   }
+}
 
   if (loading) {
     return (
@@ -198,8 +219,22 @@ export default function RoomPage({
 
   if (!data) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        Error cargando documento
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="bg-white p-8 rounded-xl shadow text-center">
+
+          <div className="text-5xl mb-4">
+            ⚠️
+          </div>
+
+          <h2 className="text-xl font-bold text-gray-800 mb-2">
+            Documento no disponible
+          </h2>
+
+          <p className="text-gray-500">
+            No fue posible cargar el documento solicitado.
+          </p>
+
+        </div>
       </div>
     )
   }

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, Copy, Trash2,} from 'lucide-react'
 import { socket } from '@/lib/socket-client'
+import Swal from 'sweetalert2'
 
 type FlowType = {
   id: string
@@ -42,7 +43,13 @@ export default function FlowsPage() {
         setFlows(data);
       } catch (err) {
         console.error(err);
-        setError('No se pudieron cargar los flows');
+        Swal.fire({
+          icon: 'error',
+          iconColor: '#ef4444',
+          title: 'Error',
+          text: 'No se pudieron cargar los flows.',
+          confirmButtonColor: '#3b82f6',
+        })
       } finally {
         setLoading(false);
       }
@@ -74,11 +81,29 @@ export default function FlowsPage() {
   }
 
 async function deleteFlow(id: string) {
-  const confirmDelete = confirm(
-    '¿Eliminar este Flow?'
-  )
 
-  if (!confirmDelete) return
+  const result = await Swal.fire({
+    title: '¿Eliminar Flow?',
+    text: 'Esta acción no se puede deshacer.',
+    icon: 'warning',
+    iconColor: '#5284f1',
+    showCancelButton: true,
+    confirmButtonText: 'Eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#64748b',
+  })
+
+  if (!result.isConfirmed) return
+  
+  await Swal.fire({
+    icon: 'success',
+    iconColor: '#22c55e',
+    title: 'Flow eliminado',
+    text: 'El flow fue eliminado correctamente.',
+    timer: 1500,
+    showConfirmButton: false,
+  })
 
   const res = await fetch(
     `/api/flows/${id}`,
@@ -88,7 +113,13 @@ async function deleteFlow(id: string) {
   )
 
   if (!res.ok) {
-    alert('Error eliminando Flow')
+    await Swal.fire({
+      icon: 'error',
+      iconColor: '#ef4444',
+      title: 'Error',
+      text: 'No fue posible eliminar el flow.',
+      confirmButtonColor: '#3b82f6',
+    })
     return
   }
 
@@ -113,7 +144,15 @@ async function generateLink(
     `${window.location.origin}/flow-room/${data.link}`
   )
 
-  alert('Link copiado')
+  Swal.fire({
+    toast: true,
+    position: 'top-end',
+    icon: 'success',
+    iconColor: '#22c55e',
+    title: 'Link generado y copiado',
+    timer: 2000,
+    showConfirmButton: false,
+  })
 }
 
   return (
