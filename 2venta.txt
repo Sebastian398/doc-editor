@@ -1,0 +1,793 @@
+Actúa como un Arquitecto de Software Senior, Product Owner, Diseñador UX/UI Senior, Especialista en Bases de Datos, Ingeniero DevOps y Desarrollador Full Stack experto en la creación de marketplaces modernos similares a Mercado Libre, Amazon, Facebook Marketplace, eBay y OLX.
+
+Necesito construir una aplicación web profesional para compra y venta de productos de segunda mano.
+
+La aplicación debe ser completamente funcional, responsive, escalable, segura y preparada para pruebas reales.
+
+Tecnologías obligatorias:
+
+- React
+- TypeScript
+- Vite
+- TailwindCSS
+- Shadcn UI
+- Supabase
+- PostgreSQL
+- Supabase Realtime
+- Supabase Storage
+- Supabase Authentication
+
+====================================================
+OBJETIVO GENERAL
+====================================================
+
+Construir una plataforma marketplace donde los usuarios puedan comprar y vender productos de segunda mano de forma segura.
+
+Debe existir un sistema completo con:
+
+- Clientes
+- Vendedores
+- Administradores
+
+La experiencia de usuario debe parecer una combinación moderna entre Mercado Libre, Amazon y Facebook Marketplace.
+
+====================================================
+REQUISITOS DE EXPERIENCIA DE USUARIO
+====================================================
+
+La plataforma debe ser:
+
+- Moderna
+- Elegante
+- Profesional
+- Responsive
+- Mobile First
+- Intuitiva
+- Accesible
+
+Debe funcionar perfectamente en:
+
+- Android
+- iPhone
+- Tablets
+- Portátiles
+- Monitores de escritorio
+
+No debe existir overflow horizontal.
+
+Los formularios, dashboard, tablas, carritos y paneles deben adaptarse automáticamente a cualquier tamaño de pantalla.
+
+Implementar:
+
+- Light Mode
+- Dark Mode
+
+Guardar preferencias del usuario.
+
+====================================================
+ROLES DEL SISTEMA
+====================================================
+
+ROL CLIENTE
+
+Puede:
+
+- Registrarse
+- Iniciar sesión
+- Buscar productos
+- Ver productos
+- Comprar productos
+- Agregar productos al carrito
+- Guardar productos en favoritos
+- Dejar reseñas
+- Calificar vendedores
+- Gestionar direcciones
+- Gestionar perfil
+- Ver historial de compras
+- Descargar facturas
+- Chatear con vendedores después de comprar
+
+ROL VENDEDOR
+
+Puede:
+
+- Registrarse
+- Iniciar sesión
+- Publicar productos
+- Editar productos
+- Gestionar inventario
+- Recibir pagos
+- Ver ventas
+- Ver reseñas
+- Responder reseñas
+- Configurar métodos de pago
+- Gestionar pedidos
+- Gestionar envíos
+- Visualizar analíticas
+
+ROL ADMINISTRADOR
+
+Puede:
+
+- Gestionar usuarios
+- Aprobar vendedores
+- Gestionar categorías
+- Gestionar productos
+- Revisar disputas
+- Gestionar reportes
+- Moderar reseñas
+- Ver estadísticas globales
+
+====================================================
+AUTENTICACIÓN
+====================================================
+
+Implementar autenticación completa.
+
+LOGIN
+
+Campos:
+
+- Correo
+- Contraseña
+
+Funciones:
+
+- Recordar sesión
+- Recuperación de contraseña
+- Restablecimiento de contraseña
+
+====================================================
+REGISTRO CLIENTE
+====================================================
+
+Campos:
+
+- Nombre completo
+- Correo electrónico
+- Teléfono
+- Dirección principal
+- Contraseña
+- Confirmación de contraseña
+
+====================================================
+REGISTRO VENDEDOR
+====================================================
+
+Campos:
+
+- Nombre completo
+- Correo electrónico
+- Teléfono
+- Dirección
+- Contraseña
+- Confirmación de contraseña
+
+Además implementar proceso de verificación similar a Mercado Libre:
+
+- Número de identificación
+- Tipo de documento
+- Fotografía del documento
+- Selfie de validación
+
+Estados:
+
+- Pendiente
+- Aprobado
+- Rechazado
+
+No permitir ventas hasta ser aprobado.
+
+====================================================
+GESTIÓN DE DIRECCIONES
+====================================================
+
+Permitir múltiples direcciones.
+
+Campos:
+
+- Alias
+- Dirección completa
+- Ciudad
+- Departamento
+- Código postal
+- Referencias
+
+Permitir dirección predeterminada.
+
+====================================================
+DASHBOARD PRINCIPAL
+====================================================
+
+Crear un dashboard moderno con:
+
+- Navbar superior
+- Buscador avanzado
+- Menú de categorías
+- Productos destacados
+- Productos recientes
+- Productos recomendados
+- Más vendidos
+- Ofertas
+- Productos cercanos
+- Historial reciente
+
+====================================================
+BARRA DE BÚSQUEDA
+====================================================
+
+Implementar búsqueda avanzada.
+
+Permitir:
+
+- Buscar por nombre
+- Buscar por categoría
+- Buscar por ciudad
+- Buscar por rango de precio
+
+Filtros:
+
+- Precio mínimo
+- Precio máximo
+- Categoría
+- Estado
+- Calificación del vendedor
+- Fecha de publicación
+
+====================================================
+CATEGORÍAS
+====================================================
+
+Crear inicialmente:
+
+- Tecnología
+- Celulares
+- Computadores
+- Videojuegos
+- Electrodomésticos
+- Hogar
+- Muebles
+- Deportes
+- Vehículos
+- Ropa
+- Calzado
+- Libros
+- Mascotas
+- Coleccionables
+
+Permitir agregar nuevas categorías desde administración.
+
+====================================================
+PRODUCTOS
+====================================================
+
+Cada producto debe contener:
+
+- Nombre
+- Descripción
+- Categoría
+- Subcategoría
+- Precio
+- Stock
+- Estado
+- Vendedor
+- Ubicación
+- Tiempo estimado de entrega
+- Fecha de publicación
+- Múltiples fotografías
+
+Estados:
+
+- Nuevo
+- Como nuevo
+- Buen estado
+- Usado
+
+====================================================
+CARDS DE PRODUCTOS
+====================================================
+
+Mostrar:
+
+- Foto principal
+- Nombre
+- Precio
+- Calificación
+- Estado
+
+Al hacer clic:
+
+Ir a página detalle del producto.
+
+====================================================
+DETALLE DEL PRODUCTO
+====================================================
+
+Mostrar:
+
+- Galería de imágenes
+- Nombre
+- Descripción
+- Precio
+- Inventario disponible
+- Estado
+- Tiempo estimado de entrega
+- Datos del vendedor
+- Calificación del vendedor
+- Número de ventas
+
+Botones:
+
+- Comprar ahora
+- Agregar al carrito
+- Añadir a favoritos
+
+Mostrar:
+
+- Reseñas
+- Preguntas y respuestas
+- Productos relacionados
+- Productos recomendados
+
+====================================================
+FAVORITOS Y LISTA DE DESEOS
+====================================================
+
+Permitir:
+
+- Agregar productos
+- Eliminar productos
+- Ver lista guardada
+- Mover productos al carrito
+
+Notificar cuando un producto favorito tenga descuentos.
+
+====================================================
+CARRITO DE COMPRAS
+====================================================
+
+Cuando se agregue un producto:
+
+- Reservar inventario automáticamente
+- Reducir stock temporalmente
+
+Si pasan 72 horas sin compra:
+
+- Eliminar del carrito
+- Restaurar inventario automáticamente
+
+Mostrar:
+
+- Imagen
+- Nombre
+- Precio unitario
+- Cantidad
+- Subtotal individual
+- Subtotal general
+- Impuestos
+- Total final
+
+Botones:
+
+- Continuar comprando
+- Proceder al pago
+
+====================================================
+RECOMENDACIONES INTELIGENTES
+====================================================
+
+Crear algoritmo de recomendación basado en:
+
+- Historial de compras
+- Historial de búsqueda
+- Categorías favoritas
+- Productos vistos
+- Productos añadidos al carrito
+
+Mostrar:
+
+- Productos sugeridos
+- También te puede interesar
+- Usuarios que compraron esto también compraron
+- Productos similares
+
+====================================================
+PROCESO DE COMPRA
+====================================================
+
+No permitir compras sin autenticación.
+
+Si no ha iniciado sesión:
+
+Redirigir a login.
+
+Autocompletar:
+
+- Nombre
+- Correo
+- Teléfono
+- Dirección
+
+Permitir editar antes de pagar.
+
+Validar:
+
+- Correo válido
+- Teléfono válido
+- Dirección obligatoria
+
+====================================================
+PASARELA DE PAGOS
+====================================================
+
+Métodos disponibles:
+
+- Tarjeta débito
+- Tarjeta crédito
+- PSE
+- Nequi
+- Llaves
+- PayPal
+
+Cada vendedor selecciona cuáles acepta.
+
+El comprador solamente debe visualizar los métodos configurados por el vendedor.
+
+Preparar integración para:
+
+- Wompi
+- Mercado Pago
+- Stripe
+- PayPal
+
+Validar datos antes del procesamiento.
+
+====================================================
+FACTURACIÓN
+====================================================
+
+Al finalizar una compra:
+
+Generar factura automáticamente.
+
+Mostrar:
+
+- Número de factura
+- Fecha
+- Cliente
+- Vendedor
+- Productos
+- Cantidades
+- Precio unitario
+- Subtotal
+- Total
+
+Botones:
+
+- Aceptar
+- Compartir
+- Descargar PDF
+
+Permitir compartir mediante:
+
+- WhatsApp
+- Telegram
+- Correo
+- Aplicaciones instaladas
+
+Generar PDF descargable.
+
+====================================================
+CHAT ENTRE CLIENTE Y VENDEDOR
+====================================================
+
+Habilitar chat únicamente después de una compra válida.
+
+Características:
+
+- Mensajes en tiempo real
+- Envío de imágenes
+- Archivos PDF
+- Historial completo
+- Estado leído
+- Indicador escribiendo
+- Notificaciones en tiempo real
+
+Usar Supabase Realtime.
+
+====================================================
+RESEÑAS Y CALIFICACIONES
+====================================================
+
+Solo compradores verificados pueden opinar.
+
+Las reseñas contienen:
+
+- Calificación de 1 a 5 estrellas
+- Comentario
+- Fecha
+
+Permitir respuestas por parte del vendedor.
+
+Calcular promedio automáticamente.
+
+====================================================
+CALIFICACIÓN DE VENDEDORES
+====================================================
+
+Mostrar:
+
+- Promedio de estrellas
+- Total de reseñas
+- Total de ventas
+- Porcentaje de satisfacción
+
+Crear insignias:
+
+- Nuevo vendedor
+- Vendedor confiable
+- Vendedor destacado
+- Top vendedor
+
+====================================================
+ENVÍOS
+====================================================
+
+Sistema completo de entregas.
+
+Estados:
+
+- Pendiente
+- Preparando pedido
+- Despachado
+- En tránsito
+- Entregado
+- Cancelado
+
+Permitir:
+
+- Transportadora
+- Número de guía
+- Fecha de envío
+
+Mostrar seguimiento al comprador.
+
+====================================================
+GEOLOCALIZACIÓN
+====================================================
+
+Permitir:
+
+- Buscar productos cercanos
+- Filtrar por ciudad
+- Filtrar por distancia
+
+Opcionalmente mostrar ubicación aproximada en mapas.
+
+====================================================
+NOTIFICACIONES
+====================================================
+
+Centro de notificaciones interno.
+
+Notificar:
+
+- Nueva compra
+- Nuevo mensaje
+- Nuevo pedido
+- Cambio de estado del envío
+- Nueva reseña
+- Producto agotado
+- Producto favorito con descuento
+
+Preparar:
+
+- In-App Notifications
+- Email Notifications
+- Push Notifications
+
+====================================================
+PANEL DEL CLIENTE
+====================================================
+
+Secciones:
+
+- Mis compras
+- Pedidos activos
+- Pedidos completados
+- Favoritos
+- Direcciones
+- Perfil
+- Facturas
+- Historial
+
+====================================================
+PANEL DEL VENDEDOR
+====================================================
+
+Secciones:
+
+- Dashboard
+- Ventas
+- Productos
+- Inventario
+- Métodos de pago
+- Pedidos
+- Envíos
+- Mensajes
+- Estadísticas
+- Calificaciones
+
+Mostrar gráficos:
+
+- Ventas diarias
+- Ventas semanales
+- Ventas mensuales
+- Ingresos
+- Productos más vendidos
+- Visualizaciones
+
+====================================================
+SISTEMA DE REPORTES
+====================================================
+
+Permitir reportar:
+
+- Productos fraudulentos
+- Productos prohibidos
+- Usuarios
+- Reseñas inapropiadas
+
+====================================================
+DISPUTAS Y RECLAMACIONES
+====================================================
+
+Permitir abrir reclamaciones.
+
+Motivos:
+
+- Producto incorrecto
+- Producto defectuoso
+- Producto no recibido
+
+Estados:
+
+- Abierta
+- En revisión
+- Resuelta
+- Rechazada
+
+====================================================
+CUPONES Y DESCUENTOS
+====================================================
+
+Sistema de promociones.
+
+Permitir:
+
+- Cupones
+- Descuentos temporales
+- Promociones especiales
+
+====================================================
+PWA
+====================================================
+
+Convertir la plataforma en una Progressive Web App.
+
+Permitir:
+
+- Instalación en Android
+- Instalación en iPhone
+- Acceso desde pantalla principal
+- Caché inteligente
+- Funcionalidades básicas offline
+
+====================================================
+SEO
+====================================================
+
+Optimizar para motores de búsqueda.
+
+Implementar:
+
+- Meta Tags
+- Open Graph
+- Sitemap
+- Robots.txt
+- URLs amigables
+- Structured Data
+
+====================================================
+SEGURIDAD
+====================================================
+
+Implementar:
+
+- Row Level Security (RLS)
+- Protección de rutas
+- Validación de formularios
+- Protección de sesiones
+- Manejo de permisos por roles
+- Protección contra accesos indebidos
+
+====================================================
+AUDITORÍA
+====================================================
+
+Registrar eventos:
+
+- Inicio de sesión
+- Compras
+- Ventas
+- Publicaciones
+- Modificaciones
+- Eliminaciones
+
+Guardar logs históricos.
+
+====================================================
+BASE DE DATOS
+====================================================
+
+Diseñar completamente la base de datos.
+
+Generar:
+
+- Modelo entidad relación
+- Esquema SQL
+- Llaves primarias
+- Llaves foráneas
+- Índices
+- Relaciones
+- Triggers
+- Funciones necesarias
+
+La base de datos debe soportar miles de usuarios simultáneos.
+
+====================================================
+ARQUITECTURA DEL PROYECTO
+====================================================
+
+Implementar Clean Architecture.
+
+Organizar por módulos.
+
+Utilizar:
+
+- Componentes reutilizables
+- Custom Hooks
+- Services
+- Types
+- Context Providers
+- Manejo centralizado de estados
+
+Implementar:
+
+- Estados de carga
+- Manejo de errores
+- Toast Notifications
+- Skeleton Loaders
+
+====================================================
+RESULTADO ESPERADO
+====================================================
+
+No generar únicamente la interfaz visual.
+
+Generar una aplicación funcional completa con:
+
+- Frontend
+- Backend
+- Base de datos
+- Autenticación
+- Seguridad
+- Inventario
+- Pedidos
+- Pagos
+- Chat
+- Notificaciones
+- Facturación
+- Administración
+
+La aplicación debe quedar lista para pruebas funcionales, futuras integraciones de producción y crecimiento a escala empresarial.
