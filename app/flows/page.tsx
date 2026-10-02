@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ExternalLink, Copy, Trash2,} from 'lucide-react'
+import { ArrowLeft, ExternalLink, Copy, Trash2, SearchX} from 'lucide-react'
 import { socket } from '@/lib/socket-client'
 import Swal from 'sweetalert2'
 
@@ -43,6 +43,7 @@ export default function FlowsPage() {
         setFlows(data);
       } catch (err) {
         console.error(err);
+        setError('No se pudieron cargar los flows')
         Swal.fire({
           icon: 'error',
           iconColor: '#ef4444',
@@ -66,10 +67,41 @@ export default function FlowsPage() {
 
   if (loading) {
     return (
-      <div className="max-w-5xl mx-auto p-6">
-        <p>Cargando flows...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 flex-col">
+        <p className="text-gray-600 mb-3 font-medium">
+          Cargando flows
+        </p>
+
+        <div className="flex gap-2">
+          {[0, 1, 2].map((i) => (
+            <span
+              key={i}
+              className="w-3 h-3 bg-blue-500 rounded-full"
+              style={{
+                animation: 'loadingDots 1.2s infinite',
+                animationDelay: `${i * 0.2}s`,
+              }}
+            />
+          ))}
+        </div>
+
+        <style jsx>{`
+          @keyframes loadingDots {
+            0%,
+            80%,
+            100% {
+              transform: scale(0.6);
+              opacity: 0.4;
+            }
+
+            40% {
+              transform: scale(1.2);
+              opacity: 1;
+            }
+          }
+        `}</style>
       </div>
-    );
+    )
   }
 
   if (error) {
@@ -95,15 +127,6 @@ async function deleteFlow(id: string) {
   })
 
   if (!result.isConfirmed) return
-  
-  await Swal.fire({
-    icon: 'success',
-    iconColor: '#22c55e',
-    title: 'Flow eliminado',
-    text: 'El flow fue eliminado correctamente.',
-    timer: 1500,
-    showConfirmButton: false,
-  })
 
   const res = await fetch(
     `/api/flows/${id}`,
@@ -113,6 +136,7 @@ async function deleteFlow(id: string) {
   )
 
   if (!res.ok) {
+
     await Swal.fire({
       icon: 'error',
       iconColor: '#ef4444',
@@ -120,39 +144,70 @@ async function deleteFlow(id: string) {
       text: 'No fue posible eliminar el flow.',
       confirmButtonColor: '#3b82f6',
     })
+
     return
   }
 
   setFlows(prev =>
     prev.filter(flow => flow.id !== id)
   )
+
+  await Swal.fire({
+    icon: 'success',
+    iconColor: '#22c55e',
+    title: 'Flow eliminado',
+    text: 'El flow fue eliminado correctamente.',
+    timer: 1500,
+    showConfirmButton: false,
+  })
+
 }
 
 async function generateLink(
   flowId: string
 ) {
-  const res = await fetch(
-    `/api/flows/${flowId}/generate-link`,
-    {
-      method: 'POST',
+
+  try {
+
+    const res = await fetch(
+      `/api/flows/${flowId}/generate-link`,
+      {
+        method: 'POST',
+      }
+    )
+
+    if (!res.ok) {
+      throw new Error()
     }
-  )
 
-  const data = await res.json()
+    const data = await res.json()
 
-  await navigator.clipboard.writeText(
-    `${window.location.origin}/flow-room/${data.link}`
-  )
+    await navigator.clipboard.writeText(
+      `${window.location.origin}/flow-room/${data.link}`
+    )
 
-  Swal.fire({
-    toast: true,
-    position: 'top-end',
-    icon: 'success',
-    iconColor: '#22c55e',
-    title: 'Link generado y copiado',
-    timer: 2000,
-    showConfirmButton: false,
-  })
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      iconColor: '#22c55e',
+      title: 'Link copiado',
+      timer: 2000,
+      showConfirmButton: false,
+    })
+
+  } catch {
+
+    Swal.fire({
+      icon: 'error',
+      iconColor: '#ef4444',
+      title: 'Error',
+      text: 'No fue posible generar el enlace.',
+      confirmButtonColor: '#3b82f6',
+    })
+
+  }
+
 }
 
   return (
@@ -193,10 +248,41 @@ async function generateLink(
       </header>
       <main className="max-w-6xl mx-auto p-6">
         {flows.length === 0 ? (
+
           <div className="bg-white rounded-xl shadow-md p-8 text-center">
-            <p className="text-gray-500">Crea tu primer Flow agrupando varias salas.</p>
+            <p className="text-gray-500">
+              Crea tu primer Flow agrupando varias salas.
+            </p>
           </div>
+
+        ) : filteredFlows.length === 0 ? (
+
+          <div
+            className="
+              bg-white
+              rounded-xl
+              shadow-md
+              p-12
+              text-center
+            "
+          >
+
+            <div className="flex justify-center mb-4">
+                <SearchX size={70} className="text-gray-400"/>
+              </div>
+
+            <h2 className="text-xl font-semibold text-gray-800">
+              No se encontraron flows
+            </h2>
+
+            <p className="text-gray-500 mt-2">
+              Prueba con otro término de búsqueda.
+            </p>
+
+          </div>
+
         ) : (
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredFlows.map((flow) => (
               <div
@@ -235,9 +321,12 @@ async function generateLink(
                       <ExternalLink size={16} />
                     </Link>
                     {/* COPIAR */}
-                    <button onClick={() => navigator.clipboard.writeText(`${window.location.origin}/flow-room/${flow.rooms[0]?.link}`)}
-                      className="flex items-center justify-center h-10 rounded bg-blue-100 text-blue-600 hover:bg-blue-200 transition">
-                      <Copy size={16} />  
+                    <button
+                      onClick={() => generateLink(flow.id)}
+                      className="flex items-center justify-center h-10 rounded bg-blue-100 text-blue-600 hover:bg-blue-200 transition"
+                      title="Copiar link"
+                    >
+                      <Copy size={16} />
                     </button>
                     {/* ELIMINAR */}
                     <button onClick={() => deleteFlow(flow.id)}

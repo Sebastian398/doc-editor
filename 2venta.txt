@@ -791,3 +791,504 @@ Generar una aplicación funcional completa con:
 - Administración
 
 La aplicación debe quedar lista para pruebas funcionales, futuras integraciones de producción y crecimiento a escala empresarial.
+
+
+
+Segundo prompt:
+
+IMPORTANTE:
+
+La interfaz visual del marketplace ya fue construida previamente.
+
+NO reconstruyas el diseño actual ni reemplaces la interfaz existente.
+
+Tu objetivo en esta iteración es completar toda la lógica funcional, la base de datos, las integraciones, los flujos de negocio y los procesos necesarios para que la plataforma quede completamente operativa y lista para pruebas funcionales.
+
+Debes revisar todos los componentes existentes y conectar la funcionalidad faltante.
+
+====================================================
+OBJETIVO DE ESTA ITERACIÓN
+====================================================
+
+Convertir la interfaz ya construida en una aplicación funcional de extremo a extremo (Frontend + Backend + Base de Datos).
+
+La plataforma debe quedar lista para realizar pruebas reales de usuario.
+
+No generar mockups.
+
+No generar datos simulados permanentes.
+
+Implementar la lógica real necesaria para que todos los procesos funcionen correctamente.
+
+====================================================
+AUTENTICACIÓN 
+
+
+
+tercer prompt:
+IMPORTANTE:
+
+NO construyas nuevas interfaces.
+
+NO rediseñes las pantallas existentes.
+
+NO reemplaces componentes visuales que ya estén funcionando.
+
+Tu objetivo en esta fase es actuar como:
+
+- Arquitecto de Software Senior
+- Ingeniero QA Senior
+- Especialista en Pruebas Funcionales
+- Ingeniero de Seguridad
+- Auditor de Código
+- Arquitecto de Bases de Datos
+
+Debes realizar una auditoría exhaustiva de toda la aplicación existente.
+
+====================================================
+OBJETIVO
+====================================================
+
+Analizar completamente el proyecto actual.
+
+Identificar:
+
+- Funcionalidades terminadas
+- Funcionalidades parcialmente implementadas
+- Funcionalidades simuladas
+- Funcionalidades sin conexión al backend
+- Errores
+- Inconsistencias
+- Riesgos de seguridad
+- Problemas de rendimiento
+- Problemas de base de datos
+
+No asumir que algo funciona simplemente porque existe una interfaz.
+
+Verificar toda la lógica real.
+
+====================================================
+ANÁLISIS DE AUTENTICACIÓN
+====================================================
+
+Validar:
+
+- Registro Cliente
+- Registro Vendedor
+- Login
+- Logout
+- Recuperación de contraseña
+- Cambio de contraseña
+- Persistencia de sesión
+
+Determinar:
+
+¿La autenticación es real?
+
+¿Está conectada a Supabase Auth?
+
+¿Existen datos simulados?
+
+¿Existen usuarios hardcodeados?
+
+Verificar protección de rutas.
+
+Verificar expiración de sesiones.
+
+====================================================
+ANÁLISIS DE ROLES
+====================================================
+
+Validar:
+
+- Cliente
+- Vendedor
+- Administrador
+
+Confirmar:
+
+- Los permisos funcionan realmente.
+- Las rutas privadas están protegidas.
+- No existen elevaciones de privilegios.
+- Los usuarios no pueden acceder a funcionalidades no autorizadas.
+
+====================================================
+ANÁLISIS DEL BACKEND
+====================================================
+
+Verificar:
+
+- Endpoints implementados.
+- Consultas a la base de datos.
+- Relaciones.
+- Servicios.
+
+Identificar:
+
+- Integraciones incompletas.
+- Funciones simuladas.
+- Datos mock.
+- Lógica pendiente.
+
+====================================================
+ANÁLISIS DE SUPABASE
+====================================================
+
+Verificar:
+
+- Tablas.
+- Relaciones.
+- Foreign Keys.
+- Triggers.
+- Storage.
+- Realtime.
+- Policies.
+
+Confirmar:
+
+- Que todo lo usado por el frontend realmente exista en Supabase.
+
+====================================================
+ANÁLISIS DE SEGURIDAD
+====================================================
+
+Validar:
+
+- Row Level Security.
+- Protección de rutas.
+- Gestión de sesiones.
+- Acceso a archivos.
+- Gestión de permisos.
+
+Reportar:
+
+- Políticas faltantes.
+- Riesgos de acceso indebido.
+- Riesgos de manipulación de datos.
+
+====================================================
+ANÁLISIS DE PRODUCTOS
+====================================================
+
+Verificar:
+
+- Creación de productos.
+- Edición.
+- Eliminación.
+- Subida de imágenes.
+- Actualización de inventario.
+
+Determinar:
+
+¿Los cambios realmente llegan a la base de datos?
+
+¿Existen errores de sincronización?
+
+====================================================
+ANÁLISIS DE INVENTARIO
+====================================================
+
+Validar cuidadosamente:
+
+- Reserva automática.
+- Descuento de stock.
+- Liberación automática de reservas.
+- Actualización luego de compra.
+
+Generar reporte detallado.
+
+Confirmar:
+
+¿Puede ocurrir sobreventa?
+
+¿Existen condiciones de carrera?
+
+====================================================
+ANÁLISIS DEL CARRITO
+====================================================
+
+Verificar:
+
+- Persistencia.
+- Sincronización.
+- Subtotales.
+- Totales.
+- Reservas.
+- Validaciones.
+
+Confirmar:
+
+¿El carrito funciona realmente o es solo visual?
+
+====================================================
+ANÁLISIS DE PAGOS
+====================================================
+
+Validar:
+
+- Integración real.
+- Configuración Sandbox.
+- Webhooks.
+- Confirmación de pagos.
+- Errores de pago.
+
+Determinar:
+
+¿La pasarela está completamente operativa?
+
+¿Existen procesos pendientes?
+
+¿Las órdenes se crean correctamente?
+
+¿Los estados cambian correctamente?
+
+====================================================
+ANÁLISIS DE FACTURACIÓN
+====================================================
+
+Verificar:
+
+- Generación de factura.
+- Información mostrada.
+- Descarga PDF.
+- Compartir factura.
+
+Validar:
+
+¿La factura se genera de forma automática?
+
+====================================================
+ANÁLISIS DE CHAT
+====================================================
+
+Confirmar:
+
+- Supabase Realtime.
+- Persistencia.
+- Historial.
+- Mensajes en tiempo real.
+
+Verificar:
+
+¿El chat está verdaderamente operativo?
+
+====================================================
+ANÁLISIS DE NOTIFICACIONES
+====================================================
+
+Verificar:
+
+- Notificaciones internas.
+- Eventos.
+- Persistencia.
+
+Confirmar:
+
+¿Se generan automáticamente?
+
+¿Quedan almacenadas?
+
+====================================================
+ANÁLISIS DE RESEÑAS
+====================================================
+
+Verificar:
+
+- Restricción por comprador.
+- Calificaciones.
+- Promedios.
+- Respuestas de vendedores.
+
+====================================================
+ANÁLISIS DE DASHBOARDS
+====================================================
+
+Verificar:
+
+Dashboard Cliente
+
+Dashboard Vendedor
+
+Dashboard Administrador
+
+Determinar:
+
+¿Cuáles tarjetas muestran datos reales?
+
+¿Cuáles utilizan datos simulados?
+
+====================================================
+ANÁLISIS DE RESPONSIVE
+====================================================
+
+Verificar:
+
+- Móviles Android
+- iPhone
+- Tablets
+- Escritorio
+
+Reportar:
+
+- Componentes rotos
+- Scroll horizontal
+- Contenedores desalineados
+- Problemas de navegación
+
+Corregir automáticamente cualquier problema encontrado.
+
+====================================================
+ANÁLISIS DE RENDIMIENTO
+====================================================
+
+Analizar:
+
+- Consultas repetidas
+- Re-renderizados innecesarios
+- Componentes pesados
+- Consultas lentas
+
+Aplicar optimizaciones donde sea necesario.
+
+====================================================
+ANÁLISIS DE CÓDIGO
+====================================================
+
+Identificar:
+
+- Código duplicado
+- Componentes duplicados
+- Funciones sin uso
+- Imports innecesarios
+- Código muerto
+- Código temporal
+
+Realizar limpieza del proyecto.
+
+====================================================
+ANÁLISIS DE ERRORES
+====================================================
+
+Escanear todo el proyecto.
+
+Identificar:
+
+- Warnings
+- Errores de compilación
+- Errores de TypeScript
+- Errores de React
+- Errores de Supabase
+
+Corregir automáticamente los encontrados.
+
+====================================================
+PRUEBAS FUNCIONALES
+====================================================
+
+Ejecutar revisión completa de:
+
+1. Registro cliente.
+
+2. Registro vendedor.
+
+3. Login.
+
+4. Recuperación contraseña.
+
+5. Publicación producto.
+
+6. Edición producto.
+
+7. Eliminación producto.
+
+8. Carrito.
+
+9. Pago.
+
+10. Facturación.
+
+11. Chat.
+
+12. Reseñas.
+
+13. Notificaciones.
+
+14. Dashboards.
+
+15. Inventario.
+
+16. Reservas.
+
+17. Seguimiento de pedidos.
+
+18. Favoritos.
+
+====================================================
+INFORME FINAL OBLIGATORIO
+====================================================
+
+Generar un informe completo dividido en:
+
+SECCIÓN A
+
+Funcionalidades completamente implementadas.
+
+SECCIÓN B
+
+Funcionalidades implementadas parcialmente.
+
+SECCIÓN C
+
+Funcionalidades simuladas o mock.
+
+SECCIÓN D
+
+Problemas encontrados.
+
+SECCIÓN E
+
+Problemas corregidos.
+
+SECCIÓN F
+
+Problemas pendientes.
+
+SECCIÓN G
+
+Riesgos de seguridad.
+
+SECCIÓN H
+
+Recomendaciones de producción.
+
+SECCIÓN I
+
+Porcentaje estimado de completitud del proyecto.
+
+====================================================
+VALIDACIÓN FINAL
+====================================================
+
+Entregar una tabla de verificación donde cada funcionalidad tenga:
+
+Estado:
+
+✅ Funcional
+
+⚠️ Parcial
+
+❌ No implementada
+
+No marcar una funcionalidad como funcional si solo existe la interfaz.
+
+Solo considerar funcional aquello que tenga:
+
+- Frontend conectado
+- Backend conectado
+- Base de datos conectada
+- Seguridad aplicada
+- Flujo completo operativo
+
+Debes ser extremadamente estricto en la evaluación.
+
+El objetivo es obtener un diagnóstico real del estado actual del producto antes de continuar hacia producción.

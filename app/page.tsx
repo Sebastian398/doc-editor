@@ -190,7 +190,7 @@ export default function Home() {
     } catch (error) {
       setRoomsError(prev => ({
         ...prev,
-        [documentId]: 'Error cargando salas ❌',
+        [documentId]: 'Error cargando salas',
       }))
     } finally {
       setRoomsLoading(prev => ({ ...prev, [documentId]: false }))

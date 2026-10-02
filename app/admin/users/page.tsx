@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import Swal from 'sweetalert2'
 
 type User = {
   id: string
@@ -33,29 +34,97 @@ export default function AdminUsersPage() {
     }
 
   useEffect(() => {
+
+    if (status === 'loading') {
+      return
+    }
+
+    if (!session) {
+
+      router.push('/login')
+
+      return
+    }
+
+    if (session.user.role !== 'ADMIN') {
+
+      router.push('/')
+
+      return
+    }
     loadUsers()
-  }, [])
+  }, [
+    session,
+    status,
+    router,
+  ])
 
   async function updateRole(
     id: string,
     role: string
   ) {
 
-    await fetch(
-      `/api/users/${id}/role`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type':
-            'application/json',
-        },
-        body: JSON.stringify({
-          role,
-        }),
-      }
-    )
+    const result = await Swal.fire({
+      title:
+        role === 'MANAGER'
+          ? '¿Convertir en Manager?'
+          : '¿Convertir en Usuario?',
+      text:
+        role === 'MANAGER'
+          ? 'Este usuario obtendrá permisos ampliados.'
+          : 'Este usuario perderá permisos de Manager.',
+      icon: 'question',
+      iconColor: '#3b82f6',
+      showCancelButton: true,
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#3b82f6',
+      cancelButtonColor: '#64748b',
+    })
 
-    loadUsers()
+    if (!result.isConfirmed) return
+
+    try {
+
+      const res = await fetch(
+        `/api/users/${id}/role`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            role,
+          }),
+        }
+      )
+
+      if (!res.ok) {
+        throw new Error()
+      }
+
+      await loadUsers()
+
+      await Swal.fire({
+        icon: 'success',
+        iconColor: '#22c55e',
+        title: 'Rol actualizado',
+        text: 'El usuario fue actualizado correctamente.',
+        timer: 1500,
+        showConfirmButton: false,
+      })
+
+    } catch {
+
+      await Swal.fire({
+        icon: 'error',
+        iconColor: '#ef4444',
+        title: 'Error',
+        text: 'No fue posible actualizar el usuario.',
+        confirmButtonColor: '#3b82f6',
+      })
+
+    }
   }
 
   if (loading) {
@@ -156,6 +225,33 @@ export default function AdminUsersPage() {
 
         </div>
 
+        {users.length === 0 && (
+
+          <div
+            className="
+              bg-white
+              rounded-2xl
+              shadow-sm
+              p-12
+              text-center
+            "
+          >
+
+            <div className="text-6xl mb-4">
+              👤
+            </div>
+
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              No hay usuarios registrados
+            </h2>
+
+            <p className="text-gray-500">
+              Todavía no existen usuarios en la plataforma.
+            </p>
+
+          </div>
+
+        )}
         <div className="
           grid
           gap-4

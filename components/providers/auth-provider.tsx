@@ -1,6 +1,7 @@
 'use client'
 
 import { SessionProvider } from 'next-auth/react'
+import SessionTimeout from '@/components/sessiontimeout'
 
 export default function AuthProvider({
   children,
@@ -8,7 +9,8 @@ export default function AuthProvider({
   children: React.ReactNode
 }) {
   return (
-    <SessionProvider refetchInterval={60}>
+    <SessionProvider refetchInterval={15}>
+      <SessionTimeout />
       {children}
     </SessionProvider>
   )
