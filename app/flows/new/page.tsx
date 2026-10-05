@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import Swal from 'sweetalert2'
 
 type RoomType = {
   id: string
@@ -44,12 +45,41 @@ export default function NewFlowPage() {
 
   async function createFlow() {
     if (!name.trim()) {
-      alert('Ingresa un nombre para el Flow')
+
+      await Swal.fire({
+        icon: 'warning',
+        iconColor: '#f59e0b',
+        title: 'Nombre requerido',
+        text: 'Ingresa un nombre para el Flow.',
+        confirmButtonColor: '#3b82f6',
+      })
+
+      return
+    }
+
+    if (name.trim().length < 4) {
+
+      await Swal.fire({
+        icon: 'warning',
+        iconColor: '#f59e0b',
+        title: 'Nombre muy corto',
+        text: 'El nombre debe tener al menos 4 caracteres.',
+        confirmButtonColor: '#3b82f6',
+      })
+
       return
     }
 
     if (selectedRooms.length === 0) {
-      alert('Selecciona al menos una sala')
+
+      await Swal.fire({
+        icon: 'warning',
+        iconColor: '#f59e0b',
+        title: 'Sin salas',
+        text: 'Debes seleccionar al menos una sala.',
+        confirmButtonColor: '#3b82f6',
+      })
+
       return
     }
     const res = await fetch('/api/flows', {
@@ -64,10 +94,27 @@ export default function NewFlowPage() {
     })
 
     if (!res.ok) {
-      alert('Error creando Flow')
+
+      const data = await res.json()
+      await Swal.fire({
+        icon: 'error',
+        iconColor: '#ef4444',
+        title: 'Error',
+        text: data.error || 'No fue posible crear el Flow.',
+        confirmButtonColor: '#3b82f6',
+      })
+
       return
     }
 
+    await Swal.fire({
+      icon: 'success',
+      iconColor: '#22c55e',
+      title: 'Flow creado',
+      text: 'El Flow fue creado correctamente.',
+      timer: 1500,
+      showConfirmButton: false,
+    })
     router.push('/flows')
   }
 
@@ -159,7 +206,29 @@ export default function NewFlowPage() {
             </h2>
 
             <div className="grid gap-3 max-h-[420px] overflow-y-auto pr-2">
+              {rooms.length === 0 && (
 
+                <div
+                  className="
+                    bg-gray-50
+                    border
+                    rounded-xl
+                    p-10
+                    text-center
+                  "
+                >
+
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    No hay salas disponibles
+                  </h3>
+
+                  <p className="text-gray-500 mt-2">
+                    Debes crear al menos una sala antes de crear un Flow.
+                  </p>
+
+                </div>
+
+              )}
               {rooms.map(room => (
                 <label
                   key={room.id}

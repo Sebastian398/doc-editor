@@ -49,10 +49,61 @@ export async function POST(req: Request) {
   
   const body = await req.json()
 
+  const flowName = body.name?.trim()
+
+  if (!flowName) {
+
+    return Response.json(
+      {
+        error:
+          'El nombre del Flow es obligatorio',
+      },
+      {
+        status: 400,
+      }
+    )
+
+  }
+
+  if (flowName.length < 4) {
+
+    return Response.json(
+      {
+        error:
+          'El nombre debe tener mínimo 4 caracteres',
+      },
+      {
+        status: 400,
+      }
+    )
+
+  }
+
+  const existingFlow =
+    await prisma.flow.findFirst({
+      where: {
+        ownerId: session.user.id,
+        name: flowName,
+      },
+    })
+
+  if (existingFlow) {
+
+    return Response.json(
+      {
+        error:
+          'Ya existe un Flow con ese nombre',
+      },
+      {
+        status: 409,
+      }
+    )
+
+  }
+
   const flow = await prisma.flow.create({
     data: {
       name: body.name,
-
       ownerId: session.user.id,
 
       items: {

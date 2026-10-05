@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { FileText, ExternalLink } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { FileText, ExternalLink, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 type FlowRoomData = {
@@ -37,61 +38,101 @@ type FlowRoomData = {
 
 export default function FlowRoomPage() {
   const [data, setData] = useState<FlowRoomData | null>(null)
+  const [error, setError] = useState('')
   const params = useParams()
   const link = params.link as string
-  useEffect(() => {
-    if (!link) return
+  const { data: session } = useSession()
+    useEffect(() => {
 
-    fetch(`/api/flow-room/${link}`)
-        .then(res => res.json())
-        .then(setData)
-  }, [link])
+        async function loadFlow() {
 
-  if (!data) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 flex-col">
-        <p className="text-gray-600 mb-3 font-medium">
-          Cargando documento
-        </p>
+            try {
 
-        <div className="flex gap-2">
-          {[0, 1, 2].map((i) => (
-            <span
-              key={i}
-              className="w-3 h-3 bg-blue-500 rounded-full"
-              style={{
-                animation: 'loadingDots 1.2s infinite',
-                animationDelay: `${i * 0.2}s`,
-              }}
-            />
-          ))}
+            const res = await fetch(`/api/flow-room/${link}`)
+
+            if (!res.ok) {
+                throw new Error()
+            }
+
+            const data = await res.json()
+
+            setData(data)
+
+            } catch {
+
+            setError('No fue posible cargar el Flow.')
+
+            }
+
+        }
+
+        if (!link) return
+
+        loadFlow()
+
+    }, [link])
+
+  
+    if (error) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-100">
+            <div className="bg-white p-8 rounded-xl shadow text-center">
+
+                <h2 className="text-xl font-bold text-gray-800 mb-2">
+                Error
+                </h2>
+
+                <p className="text-gray-500">
+                {error}
+                </p>
+
+            </div>
+            </div>
+        )
+    }  
+  
+    if (!data) {
+        return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-100 flex-col">
+            <p className="text-gray-600 mb-3 font-medium">
+            Cargando documento
+            </p>
+
+            <div className="flex gap-2">
+            {[0, 1, 2].map((i) => (
+                <span
+                key={i}
+                className="w-3 h-3 bg-blue-500 rounded-full"
+                style={{
+                    animation: 'loadingDots 1.2s infinite',
+                    animationDelay: `${i * 0.2}s`,
+                }}
+                />
+            ))}
+            </div>
+
+            <style jsx>{`
+            @keyframes loadingDots {
+                0%,
+                80%,
+                100% {
+                transform: scale(0.6);
+                opacity: 0.4;
+                }
+
+                40% {
+                transform: scale(1.2);
+                opacity: 1;
+                }
+            }
+            `}</style>
         </div>
-
-        <style jsx>{`
-          @keyframes loadingDots {
-            0%,
-            80%,
-            100% {
-              transform: scale(0.6);
-              opacity: 0.4;
-            }
-
-            40% {
-              transform: scale(1.2);
-              opacity: 1;
-            }
-          }
-        `}</style>
-      </div>
-    )
-  }
-  const totalRooms = data.flow.items.length
+        )
+    }
+    const totalRooms = data.flow.items.length
     const completedRooms = data.flow.items.filter(item => {
-    const totalFields =
-        item.room.document.fields.length
-
-    const responses =
-        item.room.responses.length
+    const totalFields = item.room.document.fields.length
+    const responses = item.room.responses.length
 
     return (
         totalFields > 0 &&
@@ -105,16 +146,31 @@ export default function FlowRoomPage() {
     return (
         <div className="min-h-screen bg-gray-100">
             <header className="bg-white border-b shadow-sm">
-                <div className="max-w-7xl mx-auto flex px-6 py-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h1 className="text-xl font-bold text-gray-800">
-                                {data.flow.name}
-                            </h1>
-                            <p className="mt-2 text-gray-600">
-                                Completa todas las salas para finalizar el proceso.
-                            </p>
-                        </div>
+                <div className="max-w-7xl mx-auto px-6 py-6">
+                    <div className="flex items-center gap-3">
+                        {(session?.user?.role === 'ADMIN' || session?.user?.role === 'MANAGER') && (
+
+                        <Link href="/flows" 
+                        className="flex
+                        items-center
+                        justify-center
+                        w-10
+                        h-10
+                        rounded-full
+                        text-gray-600
+                        hover:text-gray-900
+                        transition"
+                        >
+                            <ArrowLeft size={20} />
+                        </Link>
+
+                        )}
+                        <h1 className="text-xl font-bold text-gray-800">
+                            {data.flow.name}
+                        </h1>
+                        <p className="mt-2 text-gray-600">
+                            Completa todas las salas para finalizar el proceso.
+                        </p>
                     </div>
                 </div>
             </header><br></br>
@@ -122,20 +178,45 @@ export default function FlowRoomPage() {
                 <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
 
                     <span className="font-semibold text-gray-700">
-                    Progreso general 
+                    Progreso general  
                     </span>
 
-                    <span className="font-bold text-cyan-500">
-                    {progress}%
-                    </span>
+                    <div
+                        className="
+                            relative
+                            w-full
+                            h-5
+                            bg-gray-200
+                            rounded-full
+                            overflow-hidden
+                        "
+                    >
 
-                
-                    <div className="w-full h-3 bg-gray-200 rounded-full">
+                    <div
+                        className="
+                            h-5
+                            bg-cyan-500
+                            rounded-full
+                            transition-all
+                            duration-500
+                        "
+                        style={{width: `${progress}%`}}
+                    />
 
-                        <div
-                        className="h-3 bg-cyan-400 rounded-full"
-                        style={{ width: `${progress}%` }}
-                        />
+                    <div
+                        className="
+                            absolute
+                            inset-0
+                            flex
+                            items-center
+                            justify-center
+                            text-m
+                            font-bold
+                            text-white
+                        "
+                    >
+                        {progress}%
+                    </div>
 
                     </div>
                     <p className="text-sm text-gray-500 mt-3">
@@ -144,16 +225,17 @@ export default function FlowRoomPage() {
                 </div>    
             </div>
             <div className="max-w-6xl mx-auto px-6">
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
                     {data.flow.items.map((item) => {
                         const totalFields = item.room.document.fields.length
                         const responses = item.room.responses.length
                         let status = 'Sin iniciar'
-                        let statusClass = 'bg-gray-100 bg-red-100 text-red-600'
+                        let statusClass = 'bg-red-100 text-red-600'
                         if (responses > 0) {
                             status = 'Pendiente'
-                            statusClass = 'bg-yellow-100 bg-yellow-100 text-yellow-600'
+                            statusClass = 'bg-yellow-100 text-yellow-600'
                         }
                         if (totalFields > 0 && responses >= totalFields
                         ) {

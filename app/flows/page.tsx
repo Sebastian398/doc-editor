@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, Copy, Trash2, SearchX} from 'lucide-react'
-import { socket } from '@/lib/socket-client'
 import Swal from 'sweetalert2'
 
 type FlowType = {
