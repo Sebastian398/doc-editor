@@ -45,20 +45,35 @@ export default function CertificatePage({
 
     async function load() {
 
-      const resolved =
-        await params
+      try {
 
-      const res =
-        await fetch(
-          `/api/certificate/${resolved.roomId}`
-        )
+        const resolved =
+          await params
 
-      const data =
-        await res.json()
+        const res =
+          await fetch(
+            `/api/certificate/${resolved.roomId}`
+          )
 
-      setCertificate(data)
+        if (!res.ok) {
+          throw new Error()
+        }
 
-      setLoading(false)
+        const data =
+          await res.json()
+
+        setCertificate(data)
+
+      } catch {
+
+        setCertificate(null)
+
+      } finally {
+
+        setLoading(false)
+
+      }
+
     }
 
     load()
@@ -105,11 +120,85 @@ export default function CertificatePage({
   }
 
   if (!certificate) {
+
     return (
-      <div className="p-10">
-        Certificado no encontrado
+
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+
+        <div
+          className="
+            bg-white
+            rounded-2xl
+            shadow-sm
+            border
+            p-12
+            text-center
+            max-w-lg
+          "
+        >
+
+          <div className="text-6xl mb-4">
+            ❌
+          </div>
+
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Certificado no encontrado
+          </h2>
+
+          <p className="text-gray-500">
+            No fue posible localizar el certificado solicitado.
+          </p>
+
+        </div>
+
       </div>
+
     )
+
+  }
+
+  function getBrowserName(userAgent: string) {
+
+    if (!userAgent) {return 'No disponible'}
+
+    if (userAgent.includes('Edg/')) {
+
+      const version = userAgent.match(/Edg\/(\d+)/)
+
+      return `Microsoft Edge ${version?.[1] || ''}`
+
+    }
+
+    if (
+      userAgent.includes('Chrome/') &&
+      !userAgent.includes('Edg/')
+    ) {
+
+      const version = userAgent.match(/Chrome\/(\d+)/)
+
+      return `Google Chrome ${version?.[1] || ''}`
+
+    }
+
+    if (userAgent.includes('Firefox/')) {
+
+      const version = userAgent.match(/Firefox\/(\d+)/)
+
+      return `Mozilla Firefox ${version?.[1] || ''}`
+
+    }
+
+    if (
+      userAgent.includes('Safari/') &&
+      !userAgent.includes('Chrome/')
+    ) {
+
+      return 'Safari'
+
+    }
+
+    return 'Navegador no identificado'
+
   }
 
   return (
@@ -168,9 +257,41 @@ export default function CertificatePage({
             </p>
           </div>
 
+          {certificate.signerName && (
+
+            <div>
+
+              <h2 className="font-bold">
+                Firmante
+              </h2>
+
+              <p>
+                {certificate.signerName}
+              </p>
+
+            </div>
+
+          )}
+
+          {certificate.signerEmail && (
+
+            <div>
+
+              <h2 className="font-bold">
+                Correo
+              </h2>
+
+              <p>
+                {certificate.signerEmail}
+              </p>
+
+            </div>
+
+          )}
+
           <div>
             <h2 className="font-bold">
-              Room ID
+              ID de sala
             </h2>
 
             <p>
@@ -185,9 +306,7 @@ export default function CertificatePage({
 
             <p>
               {
-                new Date(
-                  certificate.signedAt
-                ).toLocaleString()
+                new Date(certificate.signedAt).toLocaleString()
               }
             </p>
           </div>
@@ -230,6 +349,7 @@ export default function CertificatePage({
               p-2
               block
               rounded
+              overflow-x-auto
             ">
               {certificate.documentHash}
             </code>
@@ -257,16 +377,20 @@ export default function CertificatePage({
               Agente de usuario
             </h2>
 
-            <code className="
-              break-all
-              text-sm
-              bg-gray-100
-              p-2
-              block
-              rounded
-            ">
-              {certificate.userAgent}
-            </code>
+            <div
+              className="
+                inline-flex
+                bg-gray-100
+                px-3
+                py-2
+                rounded-lg
+                text-sm
+                font-medium
+              "
+            >
+              {getBrowserName(certificate.userAgent)}
+            </div>
+
           </div>
 
         </div>

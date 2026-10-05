@@ -117,12 +117,12 @@ export default function Home() {
 
   async function refreshOpenedRooms() {
 
-    const openedDocuments =
-      Object.keys(roomsRef.current)
+    const openedDocuments = Object.keys(roomsRef.current)
 
     for (const documentId of openedDocuments) {
 
       const res = await fetch(`/api/rooms/${documentId}`)
+
       const data = await res.json()
 
       setRooms(prev => ({

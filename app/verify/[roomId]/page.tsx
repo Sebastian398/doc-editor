@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
 
 type Signature = {
   id: string
@@ -28,29 +30,49 @@ export default function VerifyPage({
   }>
 }) {
 
-  const [data, setData] =
-    useState<VerificationData | null>(null)
+  const [data, setData] = useState<VerificationData | null>(null)
 
-  const [loading, setLoading] =
-    useState(true)
+  const [loading, setLoading] = useState(true)
 
+  const [roomId, setRoomId] = useState('')
+  
   useEffect(() => {
 
     async function load() {
 
-      const resolved =
-        await params
+      try {
 
-      const response =
-        await fetch(
-          `/api/verify/${resolved.roomId}`
-        )
+        const resolved = await params
 
-      const result =
-        await response.json()
+        setRoomId(resolved.roomId)
 
-      setData(result)
-      setLoading(false)
+        const response = await fetch(
+            `/api/verify/${resolved.roomId}`
+          )
+
+        if (!response.ok) {throw new Error()}
+
+        const result = await response.json()
+
+        setData(result)
+
+      } catch {
+
+        setData({
+          valid: false,
+          certificateId: '',
+          documentName: '',
+          signedAt: '',
+          documentHash: '',
+          signatures: [],
+        })
+
+      } finally {
+
+        setLoading(false)
+
+      }
+
     }
 
     load()
@@ -98,8 +120,35 @@ export default function VerifyPage({
 
   if (!data?.valid) {
     return (
-      <div className="p-10">
-        Certificado no encontrado
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+
+        <div
+          className="
+            bg-white
+            rounded-2xl
+            shadow-sm
+            border
+            p-12
+            text-center
+            max-w-lg
+          "
+        >
+
+          <div className="text-6xl mb-4">
+            ❌
+          </div>
+
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Certificado no encontrado
+          </h2>
+
+          <p className="text-gray-500">
+            El certificado solicitado no existe
+            o ya no está disponible.
+          </p>
+
+        </div>
+
       </div>
     )
   }
@@ -109,21 +158,41 @@ export default function VerifyPage({
 
       <div className="max-w-5xl mx-auto bg-white rounded-xl shadow p-8">
 
-        <h1 className="text-4xl font-bold mb-4 text-black">
-          Verificación de documento
-        </h1>
+        <div className="flex items-start gap-4 mb-4">
+
+          <Link
+            href={`/certificate/${roomId}`}
+            className="
+              flex
+              items-center
+              justify-center
+              w-10
+              h-10
+              rounded-lg
+              bg-gray-100
+              text-gray-600
+              hover:text-gray-900">
+            <ArrowLeft />
+          </Link>
+          <h1 className="text-4xl font-bold mb-4 text-black">
+                Verificación de documento
+          </h1>
+        </div>
 
         <div className="mb-6 flex items-center gap-3">
 
           <div className="
+            inline-flex
+            items-center
+            gap-2
             bg-green-100
             text-green-700
             px-4
             py-2
             rounded-lg
-            font-bold
+            font-semibold
           ">
-            VERIFICADO
+            VERIFICADO DIGITALMENTE
           </div>
 
         </div>
@@ -157,6 +226,8 @@ export default function VerifyPage({
             p-3
             rounded
             break-all
+            text-xs
+            overflow-x-auto
           ">
             {data.documentHash}
           </code>
@@ -170,6 +241,26 @@ export default function VerifyPage({
         </h2>
 
         <div className="space-y-4">
+
+          {data.signatures.length === 0 && (
+
+            <div
+              className="
+                border
+                rounded-xl
+                p-6
+                text-center
+                bg-gray-50
+              "
+            >
+
+              <p className="text-gray-500">
+                No existen firmas registradas.
+              </p>
+
+            </div>
+
+          )}
 
           {data.signatures.map(
             (signature) => (
@@ -205,7 +296,7 @@ export default function VerifyPage({
                     </strong>{' '}
                     {
                       signature.signerName ??
-                      'Anonymous Signer'
+                      'Firmante anónimo'
                     }
                   </p>
 
@@ -215,7 +306,7 @@ export default function VerifyPage({
                     </strong>{' '}
                     {
                       signature.signerEmail ??
-                      'Not Available'
+                      'No disponible'
                     }
                   </p>
 
