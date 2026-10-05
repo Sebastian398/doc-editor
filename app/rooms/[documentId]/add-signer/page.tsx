@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
+import Swal from 'sweetalert2'
 
 type User = {
   id: string
@@ -20,15 +21,40 @@ export default function AddSignerPage() {
 
     const [position, setPosition] = useState(1)
 
+    const [loading, setLoading] = useState(true)
+
+    const [saving, setSaving] = useState(false)
+
     useEffect(() => {
 
         async function loadUsers() {
 
-        const res = await fetch('/api/users')
+            try {
 
-        const data = await res.json()
+            const res = await fetch('/api/users')
 
-        setUsers(data)
+            if (!res.ok) {throw new Error()}
+
+            const data = await res.json()
+
+            setUsers(data)
+
+            } catch {
+
+            await Swal.fire({
+                icon: 'error',
+                iconColor: '#ef4444',
+                title: 'Error',
+                text: 'No fue posible cargar los usuarios.',
+                confirmButtonColor: '#3b82f6',
+            })
+
+            } finally {
+
+            setLoading(false)
+
+            }
+
         }
 
         loadUsers()
@@ -36,21 +62,39 @@ export default function AddSignerPage() {
     }, [])
 
     async function handleAdd() {
+
         try {
+
             if (!userId) {
-                alert('Debe seleccionar un usuario')
-                return
+
+            await Swal.fire({
+                icon: 'warning',
+                iconColor: '#f59e0b',
+                title: 'Usuario requerido',
+                text: 'Debe seleccionar un usuario.',
+                confirmButtonColor: '#3b82f6',
+            })
+
+            return
+
             }
 
             if (position <= 0) {
-                alert('La posición debe ser mayor que 0')
-                return
-            }
-            console.log({
-                documentId,
-                userId,
-                position,
+
+            await Swal.fire({
+                icon: 'warning',
+                iconColor: '#f59e0b',
+                title: 'Posición inválida',
+                text: 'La posición debe ser mayor que cero.',
+                confirmButtonColor: '#3b82f6',
             })
+
+            return
+
+            }
+
+            setSaving(true)
+
             const response =
             await fetch(
                 `/api/rooms/${documentId}/signers`,
@@ -67,57 +111,67 @@ export default function AddSignerPage() {
                 }
             )
 
-            const data = await response.json()
+            const data =
+            await response.json()
 
             if (!response.ok) {
-            alert(data.error || 'Error al agregar firmante')
-            return
-            }
-            alert('Firmante agregado')
 
-        } catch (error) {
-            console.error(error)
-            alert('Error inesperado')
+            await Swal.fire({
+                icon: 'error',
+                iconColor: '#ef4444',
+                title: 'Error',
+                text:
+                data.error ||
+                'Error al agregar firmante.',
+                confirmButtonColor: '#3b82f6',
+            })
+
+            return
+
+            }
+
+            await Swal.fire({
+            icon: 'success',
+            iconColor: '#22c55e',
+            title: 'Firmante agregado',
+            text: 'El firmante fue agregado correctamente.',
+            timer: 1500,
+            showConfirmButton: false,
+            })
+
+            setUserId('')
+            setPosition(1)
+
+        } catch {
+
+            await Swal.fire({
+            icon: 'error',
+            iconColor: '#ef4444',
+            title: 'Error',
+            text: 'Ocurrió un error inesperado.',
+            confirmButtonColor: '#3b82f6',
+            })
+
+        } finally {
+
+            setSaving(false)
+
         }
-    }
+
+        }
 
 
   return (
 
-    <div className="
-        min-h-screen
-        bg-gray-100
-        py-10
-    ">
+    <div className="min-h-screen bg-gray-100 py-10">
 
-        <div
-        className="
-            max-w-xl
-            mx-auto
-            bg-white
-            rounded-2xl
-            shadow
-            p-8
-        "
-        >
+        <div className="max-w-xl mx-auto bg-white rounded-2xl shadow p-8">
 
-        <h1
-            className="
-            text-3xl
-            font-bold
-            mb-2
-            text-black
-            "
-        >
+        <h1 className="text-3xl font-bold mb-2 text-black">
             Agregar Firmante
         </h1>
 
-        <p
-            className="
-            text-gray-500
-            mb-8
-            "
-        >
+        <p className="text-gray-500 mb-8">
             Seleccione el usuario y
             defina el orden visual de
             aparición.
@@ -125,24 +179,13 @@ export default function AddSignerPage() {
 
         <div className="mb-5">
 
-            <label
-            className="
-                block
-                font-medium
-                mb-2
-                text-gray-700
-            "
-            >
+            <label className="block font-medium mb-2 text-gray-700">
             Usuario
             </label>
 
             <select
             value={userId}
-            onChange={(e) =>
-                setUserId(
-                e.target.value
-                )
-            }
+            onChange={(e) =>setUserId(e.target.value)}
             className="
                 w-full
                 border
