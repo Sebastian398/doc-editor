@@ -125,7 +125,7 @@ export default function NewFlowPage() {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/flows/" className="text-gray-600 hover:text-black">
-              <ArrowLeft size={18} />
+              <ArrowLeft size={35} />
             </Link>
             <h1 className="font-semibold text-gray-800">
               Nuevo Flow

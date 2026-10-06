@@ -172,7 +172,7 @@ export default function VerifyPage({
               bg-gray-100
               text-gray-600
               hover:text-gray-900">
-            <ArrowLeft />
+            <ArrowLeft size={35}/>
           </Link>
           <h1 className="text-4xl font-bold mb-4 text-black">
                 Verificación de documento

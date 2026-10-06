@@ -215,7 +215,7 @@ async function generateLink(
       <header className="bg-white border-b shadow-sm px-6 py-4">
         <div className="max-w-6xl mx-auto flex gap-4 items-center">
           <Link href="/" className="text-gray-600 hover:text-black">
-            <ArrowLeft size={18} />
+            <ArrowLeft size={35} />
           </Link>
           <h1 className="font-bold text-2xl whitespace-nowrap text-gray-800">
             Gestor de Flows

@@ -161,7 +161,7 @@ export default function FlowRoomPage() {
                         hover:text-gray-900
                         transition"
                         >
-                            <ArrowLeft size={20} />
+                            <ArrowLeft size={35} />
                         </Link>
 
                         )}

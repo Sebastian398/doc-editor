@@ -5,7 +5,7 @@ import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { Download } from 'lucide-react'
 import { Copy } from 'lucide-react'
-import {FileText, Plus, ExternalLink, Pencil, Trash2,} from 'lucide-react'
+import {FileText, Plus, ExternalLink, Pencil, Trash2, Search} from 'lucide-react'
 import { socket } from '@/lib/socket-client'
 import {useSession, signOut,} from 'next-auth/react'
 import { useRouter } from 'next/navigation'
@@ -32,11 +32,6 @@ type RoomType = {
   answeredFields: number
 }
 
-type MessageType = {
-  type: 'success' | 'error'
-  text: string
-}
-
 const MiniPDFViewer = dynamic(() => import('@/components/PDFViewer'), {
   ssr: false,
 })
@@ -49,7 +44,6 @@ export default function Home() {
   const [roomsLoading, setRoomsLoading] = useState<Record<string, boolean>>({})
   const [roomsError, setRoomsError] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
-  const [message, setMessage] = useState<MessageType | null>(null)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] =
   useState<
@@ -65,34 +59,40 @@ export default function Home() {
     percentage: 0,
   })
   useEffect(() => {
-    fetch('/api/documents')
-      .then((res) => res.json())
-      .then((data) => {
-        setDocs(data)
+
+    async function loadDashboard() {
+
+      try {
+
+        const [
+          docsRes,
+          statsRes,
+        ] = await Promise.all([
+          fetch('/api/documents'),
+          fetch('/api/dashboard/stats'),
+        ])
+
+        const docsData =
+          await docsRes.json()
+
+        const statsData =
+          await statsRes.json()
+
+        setDocs(docsData)
+
+        setStats(statsData)
+
+      } finally {
+
         setLoading(false)
-      })
-    fetch('/api/dashboard/stats')
-      .then(res => res.json())
-      .then(data => setStats(data))
+
+      }
+
+    }
+
+    loadDashboard()
+
   }, [])
-  useEffect(() => {
-
-  if (status === 'loading') {
-    return
-  }
-
-  if (!session) {
-
-    router.push('/login')
-
-    return
-  }
-
-}, [
-  session,
-  status,
-  router,
-])
 
   async function refreshDashboard() {
 
@@ -127,7 +127,7 @@ export default function Home() {
 
       setRooms(prev => ({
         ...prev,
-        data,
+        [documentId]: data,
       }))
     }
   }
@@ -294,6 +294,36 @@ export default function Home() {
     }
   }
 
+  async function handleLogout() {
+
+    const result = await Swal.fire({
+      title: '¿Cerrar sesión?',
+      text: 'Tu sesión actual finalizará.',
+      icon: 'question',
+      iconColor: '#5284f1',
+      showCancelButton: true,
+      confirmButtonText: 'Cerrar sesión',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#98a0b1',
+    })
+
+    if (!result.isConfirmed) return
+
+    signOut({
+      callbackUrl: '/login',
+    })
+
+  }
+
+  const filteredDocs = docs.filter(doc =>
+    doc.name
+      .toLowerCase()
+      .includes(
+        search.toLowerCase()
+      )
+  )
+
   return (
     <div className="min-h-screen bg-gray-100">
 
@@ -362,13 +392,7 @@ export default function Home() {
             >
               Flows
             </Link>
-            <button
-
-              onClick={() =>
-                signOut({
-                  callbackUrl:'/login',
-                })
-              }
+            <button onClick={handleLogout}
 
               className="
                 flex
@@ -443,19 +467,6 @@ export default function Home() {
       {/* CONTENIDO */}
       <main className="p-6 max-w-6xl mx-auto">
 
-        {/* MENSAJE */}
-        {message && (
-          <div
-            className={`mb-4 p-3 rounded-lg text-sm font-medium ${
-              message.type === 'success'
-                ? 'bg-green-100 text-green-700'
-                : 'bg-red-100 text-red-700'
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
-
         {/* LOADING */}
         {loading && (
           <p className="text-gray-500">Cargando documentos...</p>
@@ -492,7 +503,31 @@ export default function Home() {
           </div>
         )}
 
-        {!loading && (
+        {!loading && docs.length > 0 && filteredDocs.length === 0 && (
+
+          <div
+            className="
+              bg-white
+              rounded-2xl
+              shadow-sm
+              border
+              p-12
+              text-center
+            "
+          >
+            <div className="flex justify-center mb-4">
+              <Search size={64} className="text-gray-400"/>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              No encontramos documentos
+            </h2>
+            <p className="text-gray-500">
+              Prueba con otro término de búsqueda.
+            </p>
+          </div>
+        )}
+
+        {!loading && filteredDocs.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
 
             {docs

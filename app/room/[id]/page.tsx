@@ -246,7 +246,7 @@ export default function RoomPage({
       <div className="bg-white shadow-sm border-b px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link href="/" className="text-gray-600 hover:text-black">
-            <ArrowLeft size={18} />
+            <ArrowLeft size={35} />
           </Link>
 
           <h1 className="font-semibold text-gray-800">
