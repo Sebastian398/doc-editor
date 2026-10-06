@@ -29,6 +29,8 @@ export default function EditorPage({
   const [tool, setTool] = useState<'text' | 'number' | 'signature'>('text')
   const [mode, setMode] = useState<'edit' | 'preview'>('edit')
   const [saveFn, setSaveFn] = useState<() => void>(() => () => {})
+  const [error, setError] = useState('')
+  const [creatingRoom, setCreatingRoom] = useState(false)
   const [pagesInfo, setPagesInfo] = useState<
     {
       pageNumber: number
@@ -43,7 +45,12 @@ export default function EditorPage({
       const { id } = await params
 
       const res = await fetch(`/api/documents/${id}`)
-      if (!res.ok) return
+      if (!res.ok) {
+
+        setError('No fue posible cargar el documento.')
+
+        return
+      }
 
       const data = await res.json()
       setDoc(data)
@@ -56,14 +63,11 @@ export default function EditorPage({
 
     try {
 
+      setCreatingRoom(true)
       const res = await fetch('/api/rooms', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          documentId: docId,
-        }),
+        headers: {'Content-Type': 'application/json',},
+        body: JSON.stringify({documentId: docId,}),
       })
 
       if (!res.ok) {
@@ -96,7 +100,35 @@ export default function EditorPage({
         confirmButtonColor: '#3b82f6',
       })
 
+    }finally {
+
+      setCreatingRoom(false)
+
     }
+
+  }
+
+  if (error) {
+
+    return (
+
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+
+        <div className="bg-white p-8 rounded-xl shadow text-center">
+
+          <h2 className="text-xl font-bold text-gray-800 mb-2">
+            Error
+          </h2>
+
+          <p className="text-gray-500">
+            {error}
+          </p>
+
+        </div>
+
+      </div>
+
+    )
 
   }
 
@@ -154,12 +186,15 @@ export default function EditorPage({
           </h1>
         </div>
 
-        <button
-          onClick={() => createRoom(doc.id)}
+        <button onClick={() => createRoom(doc.id)} disabled={creatingRoom}
           className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition shadow"
         >
           <Plus size={16} />
-          Crear sala
+          {
+            creatingRoom
+            ? 'Creando...'
+            : 'Crear sala'
+          }
         </button>
       </div>
 

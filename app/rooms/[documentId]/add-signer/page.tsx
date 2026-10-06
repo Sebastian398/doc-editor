@@ -158,125 +158,161 @@ export default function AddSignerPage() {
 
         }
 
-        }
+    }
 
+    if (loading) {
 
-  return (
+        return (
 
-    <div className="min-h-screen bg-gray-100 py-10">
+            <div className="min-h-screen flex items-center justify-center bg-gray-100">
 
-        <div className="max-w-xl mx-auto bg-white rounded-2xl shadow p-8">
+            <p className="text-gray-500">
+                Cargando usuarios...
+            </p>
 
-        <h1 className="text-3xl font-bold mb-2 text-black">
-            Agregar Firmante
-        </h1>
+            </div>
 
-        <p className="text-gray-500 mb-8">
-            Seleccione el usuario y
-            defina el orden visual de
-            aparición.
-        </p>
+        )
 
-        <div className="mb-5">
+    } 
 
-            <label className="block font-medium mb-2 text-gray-700">
-            Usuario
-            </label>
+    return (
 
-            <select
-            value={userId}
-            onChange={(e) =>setUserId(e.target.value)}
-            className="
-                w-full
-                border
-                rounded-lg
-                p-3
-                text-gray-700
-            "
-            >
+        <div className="min-h-screen bg-gray-100 py-10">
 
-            <option value="">
-                Seleccione usuario
-            </option>
+            <div className="max-w-xl mx-auto bg-white rounded-2xl shadow p-8">
 
-            {users.map(
-                (user) => (
+            <h1 className="text-3xl font-bold mb-2 text-black">
+                Agregar Firmante
+            </h1>
 
-                <option
-                    key={user.id}
-                    value={user.id}
+            {users.length === 0 && (
+
+                <div
+                    className="
+                    bg-gray-50
+                    border
+                    rounded-xl
+                    p-6
+                    text-center
+                    mb-6
+                    "
                 >
-                    {user.name}
-                    {' - '}
-                    {user.email}
-                </option>
 
-                )
+                    <p className="text-gray-500">
+                    No hay usuarios disponibles.
+                    </p>
+
+                </div>
+
             )}
 
-            </select>
+            <p className="text-gray-500 mb-8">
+                Seleccione el usuario y
+                defina el orden visual de
+                aparición.
+            </p>
+
+            <div className="mb-5">
+
+                <label className="block font-medium mb-2 text-gray-700">
+                Usuario
+                </label>
+
+                <select
+                value={userId}
+                onChange={(e) =>setUserId(e.target.value)}
+                className="
+                    w-full
+                    border
+                    rounded-lg
+                    p-3
+                    text-gray-700
+                "
+                >
+
+                <option value="">
+                    Seleccione usuario
+                </option>
+
+                {users.map(
+                    (user) => (
+
+                    <option
+                        key={user.id}
+                        value={user.id}
+                    >
+                        {user.name}
+                        {' - '}
+                        {user.email}
+                    </option>
+
+                    )
+                )}
+
+                </select>
+
+            </div>
+
+            <div className="mb-8">
+
+                <label
+                className="
+                    block
+                    font-medium
+                    mb-2
+                    text-gray-700
+                "
+                >
+                Posición
+                </label>
+
+                <input
+                type="number"
+                min={1}
+                value={position}
+                onChange={(e) =>
+                    setPosition(
+                    Number(
+                        e.target.value
+                    )
+                    )
+                }
+                className="
+                    w-full
+                    border
+                    rounded-lg
+                    p-3
+                    text-gray-700
+                "
+                />
+
+            </div>
+
+            <div className="flex justify-center">
+
+                <button onClick={handleAdd} disabled={saving}
+                className="
+                    bg-blue-600
+                    hover:bg-blue-700
+                    text-white
+                    px-6
+                    py-3
+                    rounded-lg
+                "
+                >
+                {
+                    saving
+                    ? 'Guardando...'
+                    : 'Guardar Firmante'
+                }
+                </button>
+
+            </div>
+
+            </div>
 
         </div>
-
-        <div className="mb-8">
-
-            <label
-            className="
-                block
-                font-medium
-                mb-2
-                text-gray-700
-            "
-            >
-            Posición
-            </label>
-
-            <input
-            type="number"
-            min={1}
-            value={position}
-            onChange={(e) =>
-                setPosition(
-                Number(
-                    e.target.value
-                )
-                )
-            }
-            className="
-                w-full
-                border
-                rounded-lg
-                p-3
-                text-gray-700
-            "
-            />
-
-        </div>
-
-        <div className="
-            flex
-            gap-3
-        ">
-
-            <button
-            onClick={handleAdd}
-            className="
-                bg-blue-600
-                hover:bg-blue-700
-                text-white
-                px-6
-                py-3
-                rounded-lg
-            "
-            >
-            Guardar Firmante
-            </button>
-
-        </div>
-
-        </div>
-
-    </div>
 
     )
 }
