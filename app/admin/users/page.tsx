@@ -45,7 +45,11 @@ export default function AdminUsersPage() {
 
       if (!session) {
 
-        router.push('/login')
+        router.push(
+          `/login?redirect=${encodeURIComponent(
+            window.location.pathname
+          )}`
+        )
 
         return
 

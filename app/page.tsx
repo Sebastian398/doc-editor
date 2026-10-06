@@ -418,58 +418,124 @@ export default function Home() {
       </header>
 
       {/* STATS*/}
-      <div className="max-w-6xl mx-auto px-6 pt-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {!loading && (
+        <div className="max-w-6xl mx-auto px-6 pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
-          <div className="bg-white rounded-xl shadow p-5">
-            <p className="text-gray-500 text-sm">
-              Total salas
-            </p>
+            <div className="bg-white rounded-xl shadow p-5">
+              <p className="text-gray-500 text-sm">
+                Total salas
+              </p>
 
-            <h2 className="text-3xl font-bold text-gray-800">
-              {stats.total}
-            </h2>
+              <h2 className="text-3xl font-bold text-gray-800">
+                {stats.total}
+              </h2>
+            </div>
+
+            <div className="bg-white rounded-xl shadow p-5">
+              <p className="text-gray-500 text-sm">
+                Completadas
+              </p>
+
+              <h2 className="text-3xl font-bold text-green-600">
+                {stats.completed}
+              </h2>
+            </div>
+
+            <div className="bg-white rounded-xl shadow p-5">
+              <p className="text-gray-500 text-sm">
+                Pendientes
+              </p>
+
+              <h2 className="text-3xl font-bold text-amber-500">
+                {stats.pending}
+              </h2>
+            </div>
+
+            <div className="bg-white rounded-xl shadow p-5">
+              <p className="text-gray-500 text-sm">
+                Completitud
+              </p>
+
+              <h2 className="text-3xl font-bold text-blue-600">
+                {stats.percentage}%
+              </h2>
+            </div>
+
           </div>
-
-          <div className="bg-white rounded-xl shadow p-5">
-            <p className="text-gray-500 text-sm">
-              Completadas
-            </p>
-
-            <h2 className="text-3xl font-bold text-green-600">
-              {stats.completed}
-            </h2>
-          </div>
-
-          <div className="bg-white rounded-xl shadow p-5">
-            <p className="text-gray-500 text-sm">
-              Pendientes
-            </p>
-
-            <h2 className="text-3xl font-bold text-amber-500">
-              {stats.pending}
-            </h2>
-          </div>
-
-          <div className="bg-white rounded-xl shadow p-5">
-            <p className="text-gray-500 text-sm">
-              Completitud
-            </p>
-
-            <h2 className="text-3xl font-bold text-blue-600">
-              {stats.percentage}%
-            </h2>
-          </div>
-
         </div>
-      </div>
+      )}
 
       {/* CONTENIDO */}
       <main className="p-6 max-w-6xl mx-auto">
 
         {/* LOADING */}
         {loading && (
-          <p className="text-gray-500">Cargando documentos...</p>
+
+          <>
+
+            {/* STATS SKELETON */}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+              {[1, 2, 3, 4].map((item) => (
+
+                <div
+                  key={item}
+                  className="
+                    bg-white
+                    rounded-xl
+                    shadow
+                    p-5
+                    animate-pulse
+                  "
+                >
+
+                  <div className="h-4 bg-gray-200 rounded w-24 mb-3" />
+
+                  <div className="h-8 bg-gray-200 rounded w-16" />
+
+                </div>
+
+              ))}
+
+            </div>
+
+            {/* DOCUMENTOS SKELETON */}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+              {[1, 2, 3, 4, 5, 6].map((item) => (
+
+                <div
+                  key={item}
+                  className="
+                    bg-white
+                    rounded-xl
+                    shadow-md
+                    p-5
+                    animate-pulse
+                  "
+                >
+
+                  <div className="h-5 bg-gray-200 rounded w-3/4 mb-4" />
+
+                  <div className="h-40 bg-gray-200 rounded-lg mb-4" />
+
+                  <div className="h-10 bg-gray-200 rounded mb-2" />
+
+                  <div className="h-10 bg-gray-200 rounded mb-2" />
+
+                  <div className="h-10 bg-gray-200 rounded" />
+
+                </div>
+
+              ))}
+
+            </div>
+
+          </>
+
         )}
 
         {/* ESTADO VACÍO */}
@@ -486,8 +552,8 @@ export default function Home() {
               mb-6
             "
           >
-            <div className="text-6xl mb-4">
-              📄
+            <div className="flex justify-center mb-4 text-gray-400">
+              <FileText size={64} />
             </div>
 
             <h2 className="text-2xl font-bold text-gray-800 mb-3">
@@ -530,15 +596,7 @@ export default function Home() {
         {!loading && filteredDocs.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
 
-            {docs
-              .filter(doc =>
-                doc.name
-                  .toLowerCase()
-                  .includes(
-                    search.toLowerCase()
-                  )
-              )
-              .map((doc) => (
+            {filteredDocs.map((doc) => (
               <div
                 key={doc.id}
                 className="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition flex flex-col justify-between"
@@ -551,7 +609,7 @@ export default function Home() {
                     </h2>
                   </div>
                   
-                <div className="w-full h-40 border rounded-lg overflow-hidden bg-gray-50">
+                  <div className="w-full h-40 border rounded-lg overflow-hidden bg-gray-50">
                     <div className="scale-[0.35] origin-top-left pointer-events-none">
                       <MiniPDFViewer file={doc.fileUrl} preview/>
                     </div>
