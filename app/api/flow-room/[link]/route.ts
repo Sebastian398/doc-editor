@@ -1,4 +1,6 @@
 import { prisma } from '@/lib/db'
+import { authOptions } from '@/lib/auth'
+import { getServerSession } from 'next-auth'
 
 export async function GET(
   req: Request,
@@ -6,6 +8,24 @@ export async function GET(
     params: Promise<{ link: string }>
   }
 ) {
+  const session =
+    await getServerSession(
+      authOptions
+    )
+
+  if (!session?.user) {
+
+    return Response.json(
+      {
+        error: 'No autorizado',
+      },
+      {
+        status: 401,
+      }
+    )
+
+  }
+
   const { link } = await params
 
   const flowRoom =

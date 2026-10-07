@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { ArrowLeft } from 'lucide-react'
 import Swal from 'sweetalert2'
+import Link from 'next/link'
 
 type RoomType = {
   id: string
@@ -15,33 +16,95 @@ type RoomType = {
 
 export default function NewFlowPage() {
   const router = useRouter()
-
+  const {data: session, status,} = useSession()
   const [name, setName] = useState('')
   const [rooms, setRooms] = useState<RoomType[]>([])
-  const [selectedRooms, setSelectedRooms] =
-    useState<string[]>([])
+  const [selectedRooms, setSelectedRooms] = useState<string[]>([])
 
   useEffect(() => {
+
+    if (status === 'loading') {
+      return
+    }
+
+    if (!session) {
+
+      router.push(
+        `/login?redirect=${encodeURIComponent(
+          window.location.pathname
+        )}`
+      )
+
+      return
+
+    }
+
+    if (
+      session.user.role !== 'ADMIN' &&
+      session.user.role !== 'MANAGER'
+    ) {
+
+      router.push('/unauthorized')
+
+      return
+
+    }
+
+  }, [
+    session,
+    status,
+    router,
+  ])
+  
+  useEffect(() => {
+
+    if (status !== 'authenticated') {
+      return
+    }
+
+    if (
+      session?.user.role !== 'ADMIN' &&
+      session?.user.role !== 'MANAGER'
+    ) {
+      return
+    }
+
     async function loadRooms() {
+
       try {
-        const res = await fetch('/api/rooms/all')
+
+        const res =
+          await fetch(
+            '/api/rooms/all'
+          )
 
         if (!res.ok) {
+
           throw new Error(
             'Error cargando salas'
           )
+
         }
 
-        const data = await res.json()
+        const data =
+          await res.json()
 
         setRooms(data)
+
       } catch (error) {
+
         console.error(error)
+
       }
+
     }
 
     loadRooms()
-  }, [])
+
+  }, [
+    session,
+    status,
+  ])
 
   async function createFlow() {
     if (!name.trim()) {

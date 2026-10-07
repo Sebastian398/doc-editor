@@ -7,10 +7,20 @@ import { authOptions } from '@/lib/auth'
 export async function GET() {
   const session = await getServerSession(authOptions)
 
-  if (!session?.user) {
+  if (
+    !session?.user ||
+    (
+      session.user.role !== 'ADMIN' &&
+      session.user.role !== 'MANAGER'
+    )
+  ) {
     return Response.json(
-      {error: 'No autorizado,'},
-      {status:401,}
+      {
+        error: 'No autorizado',
+      },
+      {
+        status: 403,
+      }
     )
   }
   const flows = await prisma.flow.findMany({
@@ -40,10 +50,20 @@ export async function GET() {
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions)
 
-  if (!session?.user) {
+  if (
+    !session?.user ||
+    (
+      session.user.role !== 'ADMIN' &&
+      session.user.role !== 'MANAGER'
+    )
+  ) {
     return Response.json(
-      {error: 'No autorizado,'},
-      {status:401,}
+      {
+        error: 'No autorizado',
+      },
+      {
+        status: 403,
+      }
     )
   }
   

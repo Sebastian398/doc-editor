@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, Copy, Trash2, SearchX} from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
 
 type FlowType = {
@@ -28,35 +30,94 @@ export default function FlowsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+  const { data: session, status } = useSession()
+  const router = useRouter()
 
   useEffect(() => {
+
+    if (status === 'loading') {
+      return
+    }
+
+    if (!session) {
+
+      router.push(
+        `/login?redirect=${encodeURIComponent(
+          window.location.pathname
+        )}`
+      )
+
+      return
+
+    }
+
+    if (
+      session.user.role !== 'ADMIN' &&
+      session.user.role !== 'MANAGER'
+    ) {
+
+      router.push('/unauthorized')
+
+      return
+
+    }
+
+  }, [
+    session,
+    status,
+    router,
+  ])
+  
+  useEffect(() => {
+
+    if (status !== 'authenticated') {
+      return
+    }
+
+    if (
+      session?.user.role !== 'ADMIN' &&
+      session?.user.role !== 'MANAGER'
+    ) {
+      return
+    }
+
     const loadFlows = async () => {
+
       try {
-        const res = await fetch('/api/flows');
+
+        const res = await fetch('/api/flows')
 
         if (!res.ok) {
-          throw new Error('Error al obtener los flows');
+          throw new Error()
         }
 
-        const data: FlowType[] = await res.json();
-        setFlows(data);
-      } catch (err) {
-        console.error(err);
-        setError('No se pudieron cargar los flows')
-        Swal.fire({
-          icon: 'error',
-          iconColor: '#ef4444',
-          title: 'Error',
-          text: 'No se pudieron cargar los flows.',
-          confirmButtonColor: '#3b82f6',
-        })
-      } finally {
-        setLoading(false);
-      }
-    };
+        const data =
+          await res.json()
 
-    loadFlows();
-  }, []);
+        setFlows(data)
+
+      } catch (err) {
+
+        console.error(err)
+
+        setError(
+          'No se pudieron cargar los flows'
+        )
+
+      } finally {
+
+        setLoading(false)
+
+      }
+
+    }
+
+    loadFlows()
+
+  }, [
+    session,
+    status,
+  ])
   
   const filteredFlows = flows.filter(flow =>
     flow.name

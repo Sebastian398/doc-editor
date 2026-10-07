@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { FileText, ExternalLink, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
@@ -41,8 +42,38 @@ export default function FlowRoomPage() {
   const [error, setError] = useState('')
   const params = useParams()
   const link = params.link as string
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
     useEffect(() => {
+
+        if (status === 'loading') {
+            return
+        }
+
+        if (!session) {
+
+            router.push(
+            `/login?redirect=${encodeURIComponent(
+                window.location.pathname
+            )}`
+            )
+            return
+        }
+
+        }, [
+        session,
+        status,
+        router,
+    ])
+
+    useEffect(() => {
+
+        if (
+            status !== 'authenticated'
+        ) {
+            return
+        }
 
         async function loadFlow() {
 
@@ -50,9 +81,7 @@ export default function FlowRoomPage() {
 
             const res = await fetch(`/api/flow-room/${link}`)
 
-            if (!res.ok) {
-                throw new Error()
-            }
+            if (!res.ok) {throw new Error()}
 
             const data = await res.json()
 
@@ -66,11 +95,17 @@ export default function FlowRoomPage() {
 
         }
 
-        if (!link) return
+        if (!link) {
+            return
+        }
 
         loadFlow()
 
-    }, [link])
+    }, [
+        link,
+        status,
+        session,
+    ])
 
   
     if (error) {
