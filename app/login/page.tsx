@@ -1,25 +1,23 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import Swal from 'sweetalert2'
 
 export default function LoginPage() {
 
-  const router =
-    useRouter()
+  const router = useRouter()
 
-  const [email, setEmail] =
-    useState('')
+  const searchParams = useSearchParams()
 
-  const [password,
-    setPassword] =
-    useState('')
+  const redirect = searchParams.get('redirect')
 
-  const [loading,
-    setLoading] =
-    useState(false)
+  const [email, setEmail] = useState('')
+
+  const [password, setPassword] = useState('')
+
+  const [loading, setLoading] = useState(false)
 
   async function handleSubmit(
     e: React.FormEvent
@@ -66,7 +64,7 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/')
+    router.push(redirect || '/')
   }
 
   return (

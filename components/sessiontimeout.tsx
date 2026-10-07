@@ -25,8 +25,11 @@ export default function SessionTimeout() {
         confirmButtonColor: '#3b82f6',
       })
 
-      signOut({
-        callbackUrl: '/login',
+      const currentPath = window.location.pathname
+      signOut({callbackUrl:
+        `/login?redirect=${encodeURIComponent(
+          currentPath
+        )}`,
       })
 
     }, 3 * 60 * 1000)
