@@ -8,10 +8,7 @@ export async function GET(
     params: Promise<{ link: string }>
   }
 ) {
-  const session =
-    await getServerSession(
-      authOptions
-    )
+  const session = await getServerSession(authOptions)
 
   if (!session?.user) {
 

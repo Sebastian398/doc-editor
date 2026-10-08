@@ -1,11 +1,13 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
-import dynamic from 'next/dynamic'
-import SignatureModal from '@/components/SignatureModal'
-import { ArrowLeft } from 'lucide-react'
-import Swal from 'sweetalert2'
 import Link from 'next/link'
+import Swal from 'sweetalert2'
+import dynamic from 'next/dynamic'
+import { ArrowLeft } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
+import { useEffect, useState, useRef } from 'react'
+import SignatureModal from '@/components/SignatureModal'
 
 const PDFViewer = dynamic(() => import('@/components/PDFViewer'), {
   ssr: false,
@@ -44,10 +46,12 @@ export default function RoomPage({
   const [data, setData] = useState<RoomData | null>(null)
   const [values, setValues] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
-
   const [activeField, setActiveField] = useState<string | null>(null)
   const [showModal, setShowModal] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const {data: session, status,} = useSession()
+  const router = useRouter()
   const [containerSize, setContainerSize] = useState({
     width: 1,
     height: 1,
@@ -61,7 +65,39 @@ export default function RoomPage({
     renderHeight: number
   }[]
 >([])
+
   useEffect(() => {
+
+    if (status === 'loading') {
+      return
+    }
+
+    if (!session) {
+
+      router.push(
+        `/login?redirect=${encodeURIComponent(
+          window.location.pathname
+        )}`
+      )
+
+      return
+
+    }
+
+  }, [
+    session,
+    status,
+    router,
+  ])
+
+  useEffect(() => {
+
+    if (
+      status !== 'authenticated'
+    ) {
+      return
+    }
+
     async function load() {
       try {
         const { id } = await params
@@ -88,10 +124,8 @@ export default function RoomPage({
         setLoading(false)
       }
     }
-    setTimeout(() => {
-    }, 1500)
     load()
-  }, [params])
+  }, [params, status])
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -141,6 +175,26 @@ export default function RoomPage({
   async function handleSubmit() {
     if (!data) return
 
+    const missingFields =
+    data.document.fields.filter(
+      field =>
+        !values[field.id]
+    )
+
+    if (missingFields.length > 0) {
+
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Campos pendientes',
+        text:
+          'Debes completar todos los campos.',
+        confirmButtonColor: '#3b82f6',
+      })
+
+      return
+
+    }
+
     const responses = Object.entries(values).map(
       ([fieldId, value]) => ({
         fieldId,
@@ -167,9 +221,10 @@ export default function RoomPage({
       text: 'La información se guardó correctamente.',
       confirmButtonColor: '#3b82f6',
     })
+    setSubmitted(true)
   } catch {
     await Swal.fire({
-      icon: 'success',
+      icon: 'error',
       iconColor: '#ef4444',
       title: 'Error',
       text: 'No fue posible guardar la información.',
@@ -245,16 +300,24 @@ export default function RoomPage({
       {/* HEADER */}
       <div className="bg-white shadow-sm border-b px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/" className="text-gray-600 hover:text-black">
+          <button
+            onClick={() =>
+              router.back()
+            }
+            className="
+              text-gray-600
+              hover:text-black
+            "
+          >
             <ArrowLeft size={35} />
-          </Link>
+          </button>
 
           <h1 className="font-semibold text-gray-800">
             {data.document.name || 'Documento'}
           </h1>
         </div>
 
-        <button
+        <button disabled={submitted}
           onClick={handleSubmit}
           className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition shadow"
         >
@@ -337,7 +400,7 @@ export default function RoomPage({
                       className="w-full h-full object-contain border border-red-400"
                     />
                   ) : (
-                    <button
+                    <button disabled={submitted}
                       onClick={() => openSignature(f.id)}
                       className="w-full h-full border-2 border-red-400 bg-gray-50 text-xs text-gray-500 rounded"
                     >
@@ -345,7 +408,7 @@ export default function RoomPage({
                     </button>
                   )
                 ) : (
-                  <input
+                  <input disabled={submitted}
                     type={isNumber ? 'number' : 'text'}
                     placeholder={
                       isNumber
