@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client'
 const socket = io(
-  'http://localhost:4000'
+  'http://192.168.240.125:4000'
 )
 
 export function emitDashboardUpdated() {
