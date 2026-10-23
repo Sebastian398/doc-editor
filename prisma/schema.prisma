@@ -58,9 +58,14 @@ model Response {
   id      String @id @default(cuid())
   value   String @db.LongText
   fieldId String
-  field   Field  @relation(fields: [fieldId], references: [id], onDelete: Cascade)
   roomId  String
-  room    Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  createdById   String?
+  createdByName String?
+  createdAt     DateTime @default(now())
+  field   Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  room    Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user    User? @relation( fields: [createdById], references: [id])
+  @@unique([roomId, fieldId])
 }
 
 model Flow {
@@ -104,6 +109,7 @@ model User {
   roomSignatures RoomSigner[]
   documents      Document[]
   flows          Flow[]
+  responses      Response[]
 }
 
 enum UserRole {

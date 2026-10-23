@@ -13,21 +13,81 @@ type ResponseInput = {
 }
 
 export async function POST(req: Request) {
+  const session = await getServerSession(authOptions)
+  if (!session?.user) {
+    return Response.json(
+      {
+        error: 'No autorizado',
+      },
+      {
+        status: 401,
+      }
+    )
+  }
+
   const body: { responses: ResponseInput[] } = await req.json()
+  if (
+    !body.responses ||
+    body.responses.length === 0
+  ) {
+    return Response.json(
+      {
+        error: 'No se recibieron respuestas',
+      },
+      {
+        status: 400,
+      }
+    )
+  }
+
   const roomId = body.responses[0]?.roomId
-  
-  await prisma.response.deleteMany({
-    where: { roomId },
-  })
+  if (!roomId) {
+
+    return Response.json(
+      {
+        error:
+          'roomId inválido',
+      },
+      {
+        status: 400,
+      }
+    )
+
+  }
+
+  for (const response of body.responses) {
+
+    const existing =
+      await prisma.response.findFirst({
+
+        where: {
+          roomId: response.roomId,
+          fieldId: response.fieldId,
+        },
+
+      })
+
+    if (existing) {
+
+      return Response.json(
+        {
+          error:'Uno o más campos ya fueron diligenciados',
+        },
+        {
+          status: 409,
+        }
+      )
+
+    }
+
+  }
 
   await prisma.response.createMany({
     data: body.responses,
   })
 
   // GENERAR HASH DE RESPUESTAS
-  const responseHash = sha256(    
-    JSON.stringify(body.responses)  
-  )
+  const responseHash = sha256(JSON.stringify(body.responses))
 
   // GUARDAR HASH Y FECHA
   await prisma.room.update({
@@ -53,8 +113,6 @@ export async function POST(req: Request) {
   const forwardedFor = headersList.get('x-forwarded-for')
 
   const ipAddress = forwardedFor ?? 'unknown'
-  
-  const session = await getServerSession(authOptions)
 
   const signerName = session?.user?.name ?? null
 
