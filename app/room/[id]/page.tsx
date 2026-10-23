@@ -31,6 +31,12 @@ type Field = {
 
 type RoomData = {
   id: string
+
+  responses: {
+    fieldId: string
+    value: string
+  }[]
+
   document: {
     fileUrl: string
     fields: Field[]
@@ -45,12 +51,13 @@ export default function RoomPage({
 }) {
   const [data, setData] = useState<RoomData | null>(null)
   const [values, setValues] = useState<Record<string, string>>({})
+  const [lockedFields, setLockedFields] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [activeField, setActiveField] = useState<string | null>(null)
   const [showModal, setShowModal] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const {data: session, status,} = useSession()
+  const [saving, setSaving] = useState(false)
   const router = useRouter()
   const [containerSize, setContainerSize] = useState({
     width: 1,
@@ -116,8 +123,12 @@ export default function RoomPage({
             initialValues[r.fieldId] = r.value
           }
         )
-
         setValues(initialValues)
+        setLockedFields(
+          json.responses.map(
+            (r: { fieldId: string }) => r.fieldId
+          )
+        )
       } catch (err) {
         console.error(err)
       } finally {
@@ -217,11 +228,11 @@ export default function RoomPage({
     await Swal.fire({
       icon: 'success',
       iconColor: '#22c55e',
-      title: 'Documento enviado',
+      title: 'Datos guardados',
       text: 'La información se guardó correctamente.',
       confirmButtonColor: '#3b82f6',
     })
-    setSubmitted(true)
+    window.location.reload()
   } catch {
     await Swal.fire({
       icon: 'error',
@@ -317,8 +328,7 @@ export default function RoomPage({
           </h1>
         </div>
 
-        <button disabled={submitted}
-          onClick={handleSubmit}
+        <button disabled={loading} onClick={handleSubmit}
           className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition shadow"
         >
           Guardar datos
@@ -400,7 +410,7 @@ export default function RoomPage({
                       className="w-full h-full object-contain border border-red-400"
                     />
                   ) : (
-                    <button disabled={submitted}
+                    <button disabled={lockedFields.includes(f.id)}
                       onClick={() => openSignature(f.id)}
                       className="w-full h-full border-2 border-red-400 bg-gray-50 text-xs text-gray-500 rounded"
                     >
@@ -408,7 +418,7 @@ export default function RoomPage({
                     </button>
                   )
                 ) : (
-                  <input disabled={submitted}
+                  <input disabled={lockedFields.includes(f.id)}
                     type={isNumber ? 'number' : 'text'}
                     placeholder={
                       isNumber
@@ -438,9 +448,11 @@ export default function RoomPage({
                       px-1
                       text-sm
                       ${
-                        isNumber
-                          ? 'border-amber-500'
-                          : 'border-blue-500'
+                        lockedFields.includes(f.id)
+                        ? 'border-green-500 bg-green-50'
+                        : isNumber
+                            ? 'border-amber-500'
+                            : 'border-blue-500'
                       }
                     `}
                   />
