@@ -321,7 +321,7 @@ export default function RoomPage({
           onClick={handleSubmit}
           className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition shadow"
         >
-          Enviar documento
+          Guardar datos
         </button>
       </div>
 
