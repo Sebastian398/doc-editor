@@ -68,7 +68,9 @@ export async function DELETE(
       where: { id },
     })
     emitDashboardUpdated()
-    emitRoomUpdated()
+    for (const roomId of roomIds) {
+      emitRoomUpdated(roomId)
+    }
     emitFlowUpdated()
 
     return new Response(

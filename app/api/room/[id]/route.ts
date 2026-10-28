@@ -69,7 +69,7 @@ export async function DELETE(
       where: { id },
     })
     emitDashboardUpdated()
-    emitRoomUpdated()
+    emitRoomUpdated(id)
     emitFlowUpdated()
 
     return Response.json({ success: true })

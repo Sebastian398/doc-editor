@@ -7,8 +7,15 @@ export function emitDashboardUpdated() {
   socket.emit('dashboard-updated')
 }
 
-export function emitRoomUpdated() {
-  socket.emit('room-updated')
+export function emitRoomUpdated(
+  roomId: string
+) {
+
+  socket.emit(
+    'room-updated',
+    roomId
+  )
+
 }
 
 export function emitFlowUpdated() {

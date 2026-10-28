@@ -5,6 +5,7 @@ import Swal from 'sweetalert2'
 import dynamic from 'next/dynamic'
 import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { socket } from '@/lib/socket-client'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState, useRef } from 'react'
 import SignatureModal from '@/components/SignatureModal'
@@ -73,6 +74,61 @@ export default function RoomPage({
   }[]
 >([])
 
+  async function loadRoom() {
+
+    try {
+
+      const { id } = await params
+
+      const res =
+        await fetch(
+          `/api/room/${id}`
+        )
+
+      if (!res.ok) {
+        throw new Error(
+          'Error cargando room'
+        )
+      }
+
+      const json = await res.json()
+
+      setData(json)
+
+      const initialValues: Record<string, string> = {}
+
+      json.responses.forEach(
+        (r: {
+          fieldId: string
+          value: string
+        }) => {
+
+          initialValues[r.fieldId] =
+            r.value
+
+        }
+      )
+
+      setValues(initialValues)
+
+      setLockedFields(
+        json.responses.map(
+          (
+            r: {
+              fieldId: string
+            }
+          ) => r.fieldId
+        )
+      )
+      return json
+
+    } catch (err) {
+
+      console.error(err)
+
+    }
+  }
+
   useEffect(() => {
 
     if (status === 'loading') {
@@ -105,41 +161,28 @@ export default function RoomPage({
       return
     }
 
-    async function load() {
-      try {
-        const { id } = await params
+    async function initializeRoom() {
 
-        const res = await fetch(`/api/room/${id}`)
-        if (!res.ok) throw new Error('Error cargando room')
+      const room = await loadRoom()
 
-        const json = await res.json()
-        setData(json)
-
-        const initialValues: Record<string, string> = {}
-        
-
-        json.responses.forEach(
-          (r: { fieldId: string; value: string }) => {
-            initialValues[r.fieldId] = r.value
-          }
-        )
-        setValues(initialValues)
-        setLockedFields(
-          json.responses.map(
-            (r: { fieldId: string }) => r.fieldId
-          )
-        )
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoading(false)
+      if (!room) {
+        return
       }
+
+      socket.emit(
+        'join-room',
+        room.id
+      )
+
+      setLoading(false)
+
     }
-    load()
+
+    initializeRoom()
+
   }, [params, status])
 
-  useEffect(() => {
-    if (!containerRef.current) return
+  useEffect(() => { if (!containerRef.current) return
 
     const updateSize = () => {
       setContainerSize({
@@ -159,12 +202,57 @@ export default function RoomPage({
     }, 1000)
     return () => observer.disconnect()
   }, [data])
+  useEffect(() => {
+
+  function handleFieldUpdated(
+    payload: {
+      fieldId: string
+      value: string
+    }
+  ) {
+
+    setValues((prev) => ({
+      ...prev,
+      [payload.fieldId]:
+        payload.value,
+    }))
+
+  }
+
+  socket.on(
+    'field-updated',
+    handleFieldUpdated
+  )
+
+  return () => {
+
+    socket.off(
+      'field-updated',
+      handleFieldUpdated
+    )
+
+  }
+
+}, [])
 
   function handleChange(fieldId: string, value: string) {
     setValues((prev) => ({
       ...prev,
       [fieldId]: value,
     }))
+    if (data) {
+
+      socket.emit(
+        'field-updated',
+        {
+          roomId: data.id,
+          fieldId,
+          value,
+        }
+      )
+
+    }
+
   }
 
   function openSignature(fieldId: string) {
@@ -179,19 +267,30 @@ export default function RoomPage({
       ...prev,
       [activeField]: base64,
     }))
+    if (data && activeField) {
+
+      socket.emit(
+        'field-updated',
+        {
+          roomId: data.id,
+          fieldId: activeField,
+          value: base64,
+        }
+      )
+
+    }
 
     setShowModal(false)
   }
 
   async function handleSubmit() {
     if (!data) return
+    if (saving) return
 
-    const missingFields =
-    data.document.fields.filter(
-      field =>
-        !values[field.id]
-    )
+    setSaving(true)
 
+    const missingFields = data.document.fields.filter(field =>!values[field.id])
+  
     if (missingFields.length > 0) {
 
       await Swal.fire({
@@ -201,6 +300,8 @@ export default function RoomPage({
           'Debes completar todos los campos.',
         confirmButtonColor: '#3b82f6',
       })
+      
+      setSaving(false)
 
       return
 
@@ -232,7 +333,6 @@ export default function RoomPage({
       text: 'La información se guardó correctamente.',
       confirmButtonColor: '#3b82f6',
     })
-    window.location.reload()
   } catch {
     await Swal.fire({
       icon: 'error',
@@ -241,8 +341,73 @@ export default function RoomPage({
       text: 'No fue posible guardar la información.',
       confirmButtonColor: '#3b82f6',
     })
+  } finally {
+
+    setSaving(false)
   }
 }
+
+async function autoSave() {
+
+  if (!data) return
+
+  const responses =
+    Object.entries(values).map(
+      ([fieldId, value]) => ({
+        fieldId,
+        value,
+        roomId: data.id,
+      })
+    )
+
+  try {
+
+    await fetch(
+      '/api/responses',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type':
+            'application/json'
+        },
+        body: JSON.stringify({
+          responses
+        })
+      }
+    )
+
+  } catch (err) {
+
+    console.error(err)
+
+  }
+
+}
+
+useEffect(() => {
+
+  if (!data) return
+
+  localStorage.setItem(
+    `room-${data.id}`,
+    JSON.stringify(values)
+  )
+
+}, [values, data])
+
+useEffect(() => {
+
+  if (!data) return
+
+  const timeout = setTimeout(() => {
+
+    autoSave()
+
+  }, 3000)
+
+  return () => clearTimeout(timeout)
+
+}, [values])
 
   if (loading) {
     return (
@@ -328,7 +493,7 @@ export default function RoomPage({
           </h1>
         </div>
 
-        <button disabled={loading} onClick={handleSubmit}
+        <button disabled={loading || saving} onClick={handleSubmit}
           className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition shadow"
         >
           Guardar datos
@@ -449,7 +614,7 @@ export default function RoomPage({
                       text-sm
                       ${
                         lockedFields.includes(f.id)
-                        ? 'border-green-500 bg-green-50'
+                        ? 'border-green-500 bg-green-50 cursor-not-allowed'
                         : isNumber
                             ? 'border-amber-500'
                             : 'border-blue-500'

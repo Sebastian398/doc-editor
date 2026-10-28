@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     },
   })
   emitDashboardUpdated()
-  emitRoomUpdated()
+  emitRoomUpdated(room.id)
   emitFlowUpdated()
   return new Response(JSON.stringify(room))
 }

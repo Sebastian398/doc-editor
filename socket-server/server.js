@@ -8,27 +8,52 @@ const io = new Server(4000, {
 
 io.on('connection', (socket) => {
 
-  console.log(
-    `Cliente conectado: ${socket.id}`
-  )
+  console.log(`Cliente conectado: ${socket.id}`)
 
   socket.on(
     'dashboard-updated',
     () => {
 
-      io.emit(
-        'dashboard-updated'
-      )
+      io.emit('dashboard-updated')
+
+    }
+  )
+
+  socket.on(
+    'join-room',
+    (roomId) => {
+
+      socket.join(roomId)
+
+      console.log(`${socket.id} unido a sala ${roomId}`)
 
     }
   )
 
   socket.on(
     'room-updated',
-    () => {
+    (roomId) => {
 
-      io.emit(
-        'room-updated'
+      io.to(roomId).emit(
+        'room-updated',
+        roomId
+      )
+
+    }
+  )
+ 
+  socket.on(
+    'field-updated',
+    (data) => {
+
+      console.log(
+        'FIELD UPDATED',
+        data
+      )
+
+      socket.to(data.roomId).emit(
+        'field-updated',
+        data
       )
 
     }
@@ -38,9 +63,7 @@ io.on('connection', (socket) => {
     'flow-updated',
     () => {
 
-      io.emit(
-        'flow-updated'
-      )
+      io.emit('flow-updated')
 
     }
   )
@@ -49,14 +72,10 @@ io.on('connection', (socket) => {
     'disconnect',
     () => {
 
-      console.log(
-        `Cliente desconectado: ${socket.id}`
-      )
+      console.log(`Cliente desconectado: ${socket.id}`)
 
     }
   )
 })
 
-console.log(
-  'Socket server iniciado en puerto 4000'
-)
+console.log('Socket server iniciado en puerto 4000')
