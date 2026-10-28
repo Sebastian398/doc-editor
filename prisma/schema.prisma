@@ -52,6 +52,7 @@ model Room {
   signatures   SignatureRecord[]
   roomSigners  RoomSigner[]
   certificate  CompletionCertificate?
+  isCompleted  Boolean @default(false)
 }
 
 model Response {

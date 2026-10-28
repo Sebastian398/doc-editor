@@ -99,49 +99,35 @@ export async function POST(req: Request) {
 
     for (const response of body.responses) {
 
-      const existing =
-        await prisma.response.findFirst({
+      await prisma.response.upsert({
 
-          where: {
-            roomId:
-              response.roomId,
-
-            fieldId:
-              response.fieldId,
+        where: {
+          roomId_fieldId: {
+            roomId: response.roomId,
+            fieldId: response.fieldId,
           },
+        },
 
-        })
+        update: {
+          value: response.value,
+        },
 
-      if (existing) {
+        create: {
+          roomId: response.roomId,
+          fieldId: response.fieldId,
+          value: response.value,
+        },
 
-        return Response.json(
-          {
-            error:
-              'Uno o más campos ya fueron diligenciados',
-          },
-          {
-            status: 409,
-          }
-        )
-
-      }
+      })
 
     }
-
-    await prisma.response.createMany({
-      data: body.responses,
-    })
 
     const allResponses =
       await prisma.response.findMany({
 
-        where: {
-          roomId,
-        },
+        where: {roomId,},
 
-        orderBy: {
-          fieldId: 'asc',
-        },
+        orderBy: {fieldId: 'asc',},
 
       })
 

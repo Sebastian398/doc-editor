@@ -277,7 +277,6 @@ export default function RoomPage({
           value: base64,
         }
       )
-
     }
 
     setShowModal(false)
@@ -403,7 +402,7 @@ useEffect(() => {
 
     autoSave()
 
-  }, 3000)
+  }, 60000)
 
   return () => clearTimeout(timeout)
 
